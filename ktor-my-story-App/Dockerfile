@@ -9,5 +9,6 @@ RUN ./gradlew installDist
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY --from=build /app/build/install/ktor-my-story-App /app
+RUN chmod +x /app/bin/ktor-my-story-App  # Add this line to set execute permission
 EXPOSE 8080
 CMD ["./bin/ktor-my-story-App"]
