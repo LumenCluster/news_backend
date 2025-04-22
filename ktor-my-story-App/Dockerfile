@@ -2,7 +2,7 @@
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
 COPY . .
-RUN gradle installDist
+RUN ./gradlew installDist
 
 # Step 2: Run Stage
 FROM eclipse-temurin:17-jdk
