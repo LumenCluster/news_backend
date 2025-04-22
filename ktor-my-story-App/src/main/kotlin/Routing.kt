@@ -14,10 +14,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 
 fun Application.configureRouting() {
     routing {
-
-//     get("/"){
-//         call.respond("hello this is noor")
-//     }
         get("/") {
             val homeArticles = transaction {
                 Articles.selectAll()
@@ -73,25 +69,26 @@ fun Application.configureRouting() {
         }
 
         // Get articles Category by name
-        get("/articles/categories/{name}") {
-            val name = call.parameters["name"]?.toString()
+//        get("/articles/categories/{name}")
+        get("/categories/{name}") {
+            val name = call.parameters["name"]?.lowercase()
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "Invalid category")
 
             val category = transaction {
-                Categories.select { Categories.name eq name }
+                Categories.select { LowerCase (Categories.name) eq name }
                     .map { Category(it[Categories.id].value, it[Categories.name]) }
                     .singleOrNull()
             } ?: return@get call.respond(HttpStatusCode.NotFound, "Category not found")
 
             call.respond(category)
         }
-        // Get articles Category by name
+//        // Get articles Category by name
 //     get("/articles/{name}") {
-//         val name = call.parameters["name"]?.toString()
+//         val name = call.parameters["name"]?.lowercase()
 //             ?: return@get call.respond(HttpStatusCode.BadRequest, "Invalid category")
 //
 //         val category = transaction {
-//             Categories.select { Categories.name eq name }
+//             Categories.select { LowerCase (Categories.name) eq name }
 //                 .map { Category(it[Categories.id].value, it[Categories.name]) }
 //                 .singleOrNull()
 //         } ?: return@get call.respond(HttpStatusCode.NotFound, "Category not found")
@@ -379,7 +376,7 @@ fun Application.configureRouting() {
                             it.update(views, views + 1) // Increment views properly
                         }
                     }
-
+//
                     com.example.Article(
                         it[com.example.ApplicationKt.Articles.id],
                         it[com.example.ApplicationKt.Articles.title],
@@ -399,8 +396,12 @@ fun Application.configureRouting() {
             } ?: call.respond(HttpStatusCode.NotFound, "Article not found")
         }
 
+
+
+
         // Get Articles by Category
-        get("/articles/name/{categoryName}") {
+        get("/articles/name/{categoryName}")
+        {
             val categoryName = call.parameters["categoryName"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing category name")
 
@@ -427,27 +428,72 @@ fun Application.configureRouting() {
         }
 
 // Search Articles
+//        get("/articles/search") {
+//            val query = call.request.queryParameters["q"]?.lowercase()
+//                ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing search query")
+//
+//            val articles = transaction {
+//                com.example.ApplicationKt.Articles
+//                    .select {
+//                        (LowerCase(Articles.title) like "%$query%") or
+//                                (LowerCase (Articles.content) like "%$query%")
+//                    }
+//                    .map {
+//                        com.example.Article(
+//                            it[com.example.ApplicationKt.Articles.id],
+//                            it[com.example.ApplicationKt.Articles.title],
+//                            it[com.example.ApplicationKt.Articles.content],
+//                            it[com.example.ApplicationKt.Articles.name],
+//                            it[com.example.ApplicationKt.Articles.category].value,
+//                            it[com.example.ApplicationKt.Articles.imageUrl],
+//                            it[com.example.ApplicationKt.Articles.createdAt],
+//                            it[com.example.ApplicationKt.Articles.author],
+//                            it[com.example.ApplicationKt.Articles.views],
+//                        )
+//                    }
+//            }
+//
+//            if (articles.isEmpty()) {
+//                call.respond(HttpStatusCode.NotFound, "No articles found")
+//            }
+//            else {
+//                call.respond(articles)
+//            }
+//        }
+
         get("/articles/search") {
-            val query = call.request.queryParameters["q"]
+            val query = call.request.queryParameters["q"]?.lowercase()
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing search query")
 
+            val categoryName = call.request.queryParameters["category"]?.lowercase()
+
+            val categoryId = if (categoryName != null) {
+                transaction {
+                    Categories
+                        .select { LowerCase(Categories.name) eq categoryName }
+                        .map { it[Categories.id].value }
+                        .singleOrNull()
+                }
+            } else null
+
             val articles = transaction {
-                com.example.ApplicationKt.Articles
+                Articles
                     .select {
-                        (com.example.ApplicationKt.Articles.title like "%$query%") or
-                                (com.example.ApplicationKt.Articles.content like "%$query%")
+                        ((LowerCase(Articles.title) like "%$query%") or
+                                (LowerCase(Articles.content) like "%$query%")) and
+                                (if (categoryId != null) Articles.category eq categoryId else Op.TRUE)
                     }
                     .map {
-                        com.example.Article(
-                            it[com.example.ApplicationKt.Articles.id],
-                            it[com.example.ApplicationKt.Articles.title],
-                            it[com.example.ApplicationKt.Articles.content],
-                            it[com.example.ApplicationKt.Articles.name],
-                            it[com.example.ApplicationKt.Articles.category].value,
-                            it[com.example.ApplicationKt.Articles.imageUrl],
-                            it[com.example.ApplicationKt.Articles.createdAt],
-                            it[com.example.ApplicationKt.Articles.author],
-                            it[com.example.ApplicationKt.Articles.views],
+                        Article(
+                            id = it[Articles.id],
+                            title = it[Articles.title],
+                            content = it[Articles.content],
+                            name = it[Articles.name],
+                            category = it[Articles.category].value,
+                            imageUrl = it[Articles.imageUrl],
+                            createdAt = it[Articles.createdAt],
+                            author = it[Articles.author],
+                            views = it[Articles.views]
                         )
                     }
             }
@@ -458,6 +504,7 @@ fun Application.configureRouting() {
                 call.respond(articles)
             }
         }
+
 
 
 //     get("/articles/search") {
@@ -508,7 +555,51 @@ fun Application.configureRouting() {
 //     }
 
 
+
+        get("/category/{name}/articles") {
+            val categoryName = call.parameters["name"]?.lowercase()
+                ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing or invalid category name")
+
+            val category = transaction {
+                Categories
+                    .selectAll()
+                    .map { it[Categories.name].lowercase() to it[Categories.id].value }
+                    .toMap()[categoryName]
+
+//                Categories
+//                    .select { LowerCase(Categories.name) eq categoryName }
+//                    .map { it[Categories.id].value }
+//                    .singleOrNull()
+            } ?: return@get call.respond(HttpStatusCode.NotFound, "Category not found")
+
+            val articles = transaction {
+                Articles
+                    .select { Articles.category eq category }
+                    .map {
+                        Article(
+                            id = it[Articles.id],
+                            title = it[Articles.title],
+                            content = it[Articles.content],
+                            name = it[Articles.name],
+                            category = it[Articles.category].value,
+                            imageUrl = it[Articles.imageUrl],
+                            createdAt = it[Articles.createdAt],
+                            author = it[Articles.author],
+                            views = it[Articles.views]
+                        )
+                    }
+            }
+
+            if (articles.isEmpty()) {
+                call.respond(HttpStatusCode.NotFound, "No articles found for this category")
+            } else {
+                call.respond(articles)
+            }
+        }
+
+
     }
+
 }
 
 
