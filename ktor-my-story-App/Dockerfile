@@ -1,8 +1,12 @@
 # Step 1: Build Stage
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
-COPY . .
-RUN ls -la /app  # Add this line for debugging
+COPY gradlew .
+COPY gradlew.bat . # If you have it
+COPY settings.gradle.kts . # Or your settings file
+COPY build.gradle.kts .    # Or your build file
+COPY src ./src
+# Add any other top-level directories explicitly
 RUN chmod +x gradlew
 RUN ./gradlew installDist
 
