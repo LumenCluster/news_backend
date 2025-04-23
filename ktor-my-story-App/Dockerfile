@@ -1,8 +1,7 @@
 # Step 1: Build Stage
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
-COPY . .
-RUN chmod +x gradlew
+COPY ktor-my-story-App/ .
 RUN ./gradlew installDist
 
 # Step 2: Run Stage
