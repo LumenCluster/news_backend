@@ -6,7 +6,8 @@ COPY gradlew.bat . # If you have it
 COPY settings.gradle.kts . # Or your settings file
 COPY build.gradle.kts .    # Or your build file
 COPY src ./src
-# Add any other top-level directories explicitly
+# Add any other top-level directories your project needs
+
 RUN chmod +x gradlew
 RUN ./gradlew installDist
 
