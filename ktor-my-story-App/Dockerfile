@@ -1,13 +1,7 @@
 # Step 1: Build Stage
 FROM gradle:8.5-jdk17 AS build
 WORKDIR /app
-COPY gradlew .
-COPY gradlew.bat . 
-COPY settings.gradle.kts . 
-COPY build.gradle.kts .    
-COPY ktor-my-story-App/src ./src
-# Add any other top-level files or directories your project needs at the root
-
+COPY . .
 RUN chmod +x gradlew
 RUN ./gradlew installDist
 
@@ -15,6 +9,5 @@ RUN ./gradlew installDist
 FROM eclipse-temurin:17-jdk
 WORKDIR /app
 COPY --from=build /app/build/install/ktor-my-story-App /app
-RUN chmod +x /app/bin/ktor-my-story-App
 EXPOSE 8080
 CMD ["./bin/ktor-my-story-App"]
