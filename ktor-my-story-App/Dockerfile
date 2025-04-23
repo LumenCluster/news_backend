@@ -5,8 +5,8 @@ COPY gradlew .
 COPY gradlew.bat . # If you have it
 COPY settings.gradle.kts . # Or your settings file
 COPY build.gradle.kts .    # Or your build file
-COPY src ./src
-# Add any other top-level directories your project needs
+COPY ktor-my-story-App/src ./src
+# Add any other top-level files or directories your project needs at the root
 
 RUN chmod +x gradlew
 RUN ./gradlew installDist
