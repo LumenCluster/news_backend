@@ -7,7 +7,15 @@ RUN chmod +x gradlew && \
     ./gradlew --no-daemon installDist
 
 # Stage 2: Runtime
-FROM eclipse-temurin:17-jre-jammy  # Changed from alpine
+# FROM eclipse-temurin:17-jre-jammy  # Changed from alpine
+FROM eclipse-temurin:17-jre-alpine
+
+# Install required tools
+RUN apk add --no-cache curl && \
+    adduser -D -h /app ktor-user && \
+    chown -R ktor-user:ktor-user /app
+
+# Rest remains the same
 
 WORKDIR /app
 COPY --from=build /app/build/install/ktor-my-story-App /app
