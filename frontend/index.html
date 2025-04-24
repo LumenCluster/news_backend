@@ -17,7 +17,7 @@
                 <a class="nav-link active" id="categories-tab" href="#">Manage Categories</a>
             </li>
             <li class="nav-item">
-                <a class="nav-link " id="articles-tab" href="#">Manage Articles</a>
+                <a class="nav-link" id="articles-tab" href="#">Manage Articles</a>
             </li>
         </ul>
 
@@ -78,25 +78,7 @@
 // const API_URL = "http://localhost:8080";
 const API_URL = "https://news-backend-88pj.onrender.com";
 
-
-
-
-// Switch Tabs
-
-document.getElementById("articles-tab").addEventListener("click", () => {
-    document.getElementById("articles-section").classList.remove("d-none");
-    document.getElementById("categories-section").classList.add("d-none");
-});
-
-document.getElementById("categories-tab").addEventListener("click", () => {
-    document.getElementById("articles-section").classList.add("d-none");
-    document.getElementById("categories-section").classList.remove("d-none");
-});
-
-
-
-
-// Load Categories
+// Load Categories first
 function loadCategories() {
     axios.get(`${API_URL}/categories`)
         .then(response => {
@@ -118,22 +100,56 @@ function loadCategories() {
                         <td>${category.id}</td>
                         <td>${category.name}</td>
                         <td>
-                
-    <button class="btn btn-primary btn-sm" 
-    onclick="updateCategory(${category.id})">
- Update
-</button>
+                            <button class="btn btn-primary btn-sm" onclick="updateCategory(${category.id})">Update</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteCategory(${category.id})">Delete</button>
+                        </td>
+                    </tr>`;
+            });
 
-                            <button class="btn btn-danger btn-sm" 
-                                onclick="deleteCategory(${category.id})">
-                                Delete
-                            </button>
+            // Once categories are loaded, load articles
+            loadArticles();  
+        })
+        .catch(error => console.error("Error loading categories:", error));
+}
+
+// Load Articles
+function loadArticles() {
+    axios.get(`${API_URL}/articles`)
+        .then(response => {
+            const articlesTable = document.getElementById("articles-table");
+            articlesTable.innerHTML = "";
+            response.data.forEach(article => {
+                articlesTable.innerHTML += `
+                    <tr>
+                        <td>${article.id}</td>
+                        <td>${article.title}</td>
+                        <td>${article.content}</td>
+                        <td>${article.name}</td>
+                        <td>${article.category}</td>
+                        <td>${article.imageUrl}</td>
+                        <td>${new Date(article.createdAt).toLocaleString()}</td>
+                        <td>${article.author}</td>
+                        <td>${article.views}</td>
+                        <td>
+                            <button class="btn btn-primary btn-sm" onclick="updateArticle(${article.id})">Update</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteArticle(${article.id})">Delete</button>
                         </td>
                     </tr>`;
             });
         })
-        .catch(error => console.error("Error loading categories:", error));
+        .catch(error => console.error("Error loading articles:", error));
 }
+
+// Switch Tabs
+document.getElementById("articles-tab").addEventListener("click", () => {
+    document.getElementById("articles-section").classList.remove("d-none");
+    document.getElementById("categories-section").classList.add("d-none");
+});
+
+document.getElementById("categories-tab").addEventListener("click", () => {
+    document.getElementById("articles-section").classList.add("d-none");
+    document.getElementById("categories-section").classList.remove("d-none");
+});
 
 // Add Category
 document.getElementById("add-category-btn").addEventListener("click", () => {
@@ -162,7 +178,7 @@ document.getElementById("add-category-btn").addEventListener("click", () => {
             })
             .then(() => {
                 alert("Category added successfully!");
-                loadCategories();
+                loadCategories();  // Reload categories after adding
             })
             .catch(error => {
                 console.error("Error adding category:", error);
@@ -175,116 +191,30 @@ document.getElementById("add-category-btn").addEventListener("click", () => {
         });
 });
 
-
-
-
-// document.getElementById("add-category-btn").addEventListener("click", () => {
-//     const id = parseInt(document.getElementById("category-id").value);
-//     const name = document.getElementById("category-name").value.trim();
-
-//     if (isNaN(id) || name === "") {
-//         alert("Please enter a valid ID and Category Name!");
-//         return;
-//     }
-
-//     axios.post(`${API_URL}/categories`, { id, name }, {
-//         headers: { "Content-Type": "application/json" }
-//     })
-//     .then(() => {
-//         alert("Category added successfully!");
-//         loadCategories();
-//     })
-//     .catch(error => {
-//         console.error("Error adding category:", error);
-//         alert("Error adding category. Please try again.");
-//     });
-// });
-
-
-
-
-
-// updateCategory
+// Update Category
 function updateCategory(id) {
-        axios.get(`${API_URL}/categories/${id}`)
+    axios.get(`${API_URL}/categories/${id}`)
         .then(response => {
-        const category = response.data;
-const newCategory = prompt("Enter new category:", category.name);
-const updateData={
-...category, 
-name: newCategory};
-                 axios.put(`${API_URL}/categories/${id}`, updateData)
-                    .then(() => {
-                        alert("Category updated successfully!");
-                        loadCategories();
-                    })
-                    .catch(error => console.error("Error updating category:", error));
-            }
-        )
+            const category = response.data;
+            const newCategory = prompt("Enter new category:", category.name);
+            const updateData = { ...category, name: newCategory };
+
+            axios.put(`${API_URL}/categories/${id}`, updateData)
+                .then(() => {
+                    alert("Category updated successfully!");
+                    loadCategories();  // Reload categories after updating
+                })
+                .catch(error => console.error("Error updating category:", error));
+        })
         .catch(error => console.error("Error fetching category:", error));
 }
-// recent updated loadcategories function testing
-// function loadCategories() {
-//     axios.get(`${API_URL}/categories`)
-//         .then(response => {           
-//             const categoriesTable = document.getElementById("categories-table");
-//             categoriesTable.innerHTML = "";
-//             response.data.forEach(category => {
-//                 // Fixed template literal and quote handling
-//                 categoriesTable.innerHTML += `
-//                     <tr>
-//                         <td>${category.id}</td>
-//                         <td>${category.name}</td>
-//                         <td>
-//                             <button class="btn btn-primary btn-sm" 
-//                                 onclick="updateCategory(${category.id})">
-//                                 Update
-//                             </button>
-//                             <button class="btn btn-danger btn-sm" 
-//                                 onclick="deleteCategory(${category.id})">
-//                                 Delete
-//                             </button>
-//                         </td>
-//                     </tr>`;
-//             });
-//         })
-//         .catch(error => console.error("Error loading categories:", error));
-// }
 
-// Load Articles
-function loadArticles() {
-    axios.get(`${API_URL}/articles`)
-        .then(response => {
-            const articlesTable = document.getElementById("articles-table");
-            articlesTable.innerHTML = "";
-            response.data.forEach(article => {
-                articlesTable.innerHTML += `
-                    <tr>
-                        <td>${article.id}</td>
-                        <td>${article.title}</td>
-                        <td>${article.content}</td>
-                        <td>${article.name}</td>
-                        <td>${article.category}</td>
-                        <td>${article.imageUrl}</td>
-                        <td>${new Date(article.createdAt).toLocaleString()}</td>
-                        <td>${article.author}</td>
-                        <td>${article.views}</td>
-                        <td>
-                            <button class="btn btn-primary btn-sm" 
-                                onclick="updateArticle(${article.id})">
-                                Update
-                            </button>
-                            <button class="btn btn-danger btn-sm" 
-                                onclick="deleteArticle(${article.id})">
-                                Delete
-                            </button>
-                        </td>
-                    </tr>`;
-            });
-        })
-        .catch(error => console.error("Error loading articles:", error));
+// Delete Category
+function deleteCategory(id) {
+    axios.delete(`${API_URL}/categories/${id}`)
+        .then(() => loadCategories())  // Reload categories after deleting
+        .catch(error => alert("Error deleting category"));
 }
-
 
 // Add Article
 document.getElementById("add-article-btn").addEventListener("click", () => {
@@ -309,75 +239,19 @@ document.getElementById("add-article-btn").addEventListener("click", () => {
         return;
     }
 
-
-    axios.post(`${API_URL}/articles`, articleData, {
-        headers: { "Content-Type":"application/json" }
-        })
+    axios.post(`${API_URL}/articles`, articleData, { headers: { "Content-Type":"application/json" } })
         .then(() => {
             alert("Article added successfully!");
-            loadArticles();
+            loadArticles();  // Reload articles after adding
         })
         .catch(error => {
             console.error("Error adding article:", error);
-            alert("Error adding article. Please check console.");
+            alert("Error adding article. Please try again.");
         });
 });
 
-// Update Article
-function updateArticle(id) {
-    axios.get(`${API_URL}/articles/${id}`)
-        .then(response => {
-            const article = response.data;
-            const newTitle = prompt("Enter new title:", article.title);
-            const newContent = prompt("Enter new content:", article.content);
-            const newAuthor = prompt("Enter new author:", article.author);
-            const newImageUrl = prompt("Enter new image URL:", article.imageUrl);
-            const newCreatedAt = prompt("Enter new created at (YYYY-MM-DDTHH:MM):", 
-                new Date(article.createdAt).toISOString().slice(0, 16));
-            const newCategoryId = prompt("Enter new category ID:", article.category);
-
-            if (newTitle && newContent && newAuthor && newCategoryId) {
-                const categorySelect = document.getElementById("categoryID");
-                const category = Array.from(categorySelect.options)
-                    .find(opt => opt.value === newCategoryId);
-
-                const updateData = {
-                    ...article,
-                    title: newTitle,
-                    content: newContent,
-                    author: newAuthor,
-                    imageUrl: newImageUrl,
-                    createdAt: new Date(newCreatedAt).getTime(),
-                    category: parseInt(newCategoryId),
-                    name: category ? category.text : article.name
-                };
-
-                axios.put(`${API_URL}/articles/${id}`, updateData)
-                    .then(() => {
-                        alert("Article updated successfully!");
-                        loadArticles();
-                    })
-                    .catch(error => console.error("Error updating article:", error));
-            }
-        })
-        .catch(error => console.error("Error fetching article:", error));
-}
-
-// Delete Article
-function deleteArticle(id) {
-    axios.delete(`${API_URL}/articles/${id}`)
-        .then(() => loadArticles())
-        .catch(error => alert("Error deleting article"));
-}
-
-// Delete Category
-function deleteCategory(id) {
-    axios.delete(`${API_URL}/categories/${id}`)
-        .then(() => loadCategories())
-        .catch(error => alert("Error deleting category"));
-}
-
-// Initial Load
-loadCategories();
-loadArticles();
-</script> 
+// Load Categories when page loads
+window.onload = () => {
+    loadCategories();  // Load categories first
+};
+</script>
