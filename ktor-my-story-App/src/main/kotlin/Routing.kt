@@ -158,56 +158,135 @@ fun Application.configureRouting() {
             }
         }
 
-        post("/articles") {
-            val article = call.receive<com.example.Article>()
+//        post("/articles") {
+//            val article = call.receive<com.example.Article>()
+//
+//            org.jetbrains.exposed.sql.transactions.transaction {
+//                com.example.ApplicationKt.Articles.insert {
+//                    it[title] = article.title
+//                    it[com.example.ApplicationKt.Articles.content] = article.content
+//                    it[com.example.ApplicationKt.Articles.name] = article.name
+//                    it[com.example.ApplicationKt.Articles.category] = article.category
+//                    it[com.example.ApplicationKt.Articles.imageUrl] = article.imageUrl ?: ""
+//                    it[com.example.ApplicationKt.Articles.createdAt] = java.lang.System.currentTimeMillis()
+//                    it[com.example.ApplicationKt.Articles.author] = article.author
+//                    it[com.example.ApplicationKt.Articles.views] = article.views
+//
+//
+//                }
+//            }
+//            call.respond(io.ktor.http.HttpStatusCode.Created, "Article added")
+//
+//
+//            // Fetch latest articles
+//            get("/articles/latest") {
+//                val latestArticles = transaction {
+//                    com.example.ApplicationKt.Articles
+//                        .selectAll()
+//                        .orderBy(
+//                            com.example.ApplicationKt.Articles.createdAt,
+//                            SortOrder.DESC
+//                        )
+//                        .limit(10)
+//                        .map {
+//                            com.example.Article(
+//                                it[com.example.ApplicationKt.Articles.id],
+//                                it[Articles.title],
+//                                it[com.example.ApplicationKt.Articles.content],
+//                                it[com.example.ApplicationKt.Articles.name],
+//                                it[com.example.ApplicationKt.Articles.category].value,
+//                                it[com.example.ApplicationKt.Articles.imageUrl],
+//                                it[com.example.ApplicationKt.Articles.createdAt],
+//                                it[com.example.ApplicationKt.Articles.author],
+//                                it[com.example.ApplicationKt.Articles.views],
+//
+//                                )
+//                        }
+//                }
+//                call.respond(latestArticles)
+//            }
+//
+//// Fetch trending articles
+//            get("/articles/trending") {
+//                val trendingArticles = transaction {
+//                    com.example.ApplicationKt.Articles
+//                        .selectAll()
+//                        .orderBy(com.example.ApplicationKt.Articles.views, SortOrder.DESC)
+//                        .limit(10)
+//                        .map {
+//                            com.example.Article(
+//                                it[com.example.ApplicationKt.Articles.id],
+//                                it[Articles.title],
+//                                it[com.example.ApplicationKt.Articles.content],
+//                                it[com.example.ApplicationKt.Articles.name],
+//                                it[com.example.ApplicationKt.Articles.category].value,
+//                                it[com.example.ApplicationKt.Articles.imageUrl],
+//                                it[com.example.ApplicationKt.Articles.createdAt],
+//                                it[com.example.ApplicationKt.Articles.author],
+//                                it[com.example.ApplicationKt.Articles.views],
+//
+//                                )
+//                        }
+//                }
+//                call.respond(trendingArticles)
+//            }
+//
+//        }
 
-            org.jetbrains.exposed.sql.transactions.transaction {
-                com.example.ApplicationKt.Articles.insert {
-                    it[title] = article.title
-                    it[com.example.ApplicationKt.Articles.content] = article.content
-                    it[com.example.ApplicationKt.Articles.name] = article.name
-                    it[com.example.ApplicationKt.Articles.category] = article.category
-                    it[com.example.ApplicationKt.Articles.imageUrl] = article.imageUrl ?: ""
-                    it[com.example.ApplicationKt.Articles.createdAt] = java.lang.System.currentTimeMillis()
-                    it[com.example.ApplicationKt.Articles.author] = article.author
-                    it[com.example.ApplicationKt.Articles.views] = article.views
 
 
+
+
+
+        route("/articles") {
+
+            // 🔸 Create a new article
+            post {
+                val article = call.receive<com.example.Article>()
+
+                transaction {
+                    com.example.ApplicationKt.Articles.insert {
+                        it[title] = article.title
+                        it[com.example.ApplicationKt.Articles.content] = article.content
+                        it[com.example.ApplicationKt.Articles.name] = article.name
+                        it[com.example.ApplicationKt.Articles.category] = article.category
+                        it[com.example.ApplicationKt.Articles.imageUrl] = article.imageUrl ?: ""
+                        it[com.example.ApplicationKt.Articles.createdAt] = System.currentTimeMillis()
+                        it[com.example.ApplicationKt.Articles.author] = article.author
+                        it[com.example.ApplicationKt.Articles.views] = article.views
+                    }
                 }
+
+                call.respond(HttpStatusCode.Created, "Article added")
             }
-            call.respond(io.ktor.http.HttpStatusCode.Created, "Article added")
 
-
-            // Fetch latest articles
-            get("/articles/latest") {
+            // 🔸 Fetch latest articles
+            get("/latest") {
                 val latestArticles = transaction {
                     com.example.ApplicationKt.Articles
                         .selectAll()
-                        .orderBy(
-                            com.example.ApplicationKt.Articles.createdAt,
-                            SortOrder.DESC
-                        )
+                        .orderBy(com.example.ApplicationKt.Articles.createdAt, SortOrder.DESC)
                         .limit(10)
                         .map {
                             com.example.Article(
                                 it[com.example.ApplicationKt.Articles.id],
-                                it[Articles.title],
+                                it[com.example.ApplicationKt.Articles.title],
                                 it[com.example.ApplicationKt.Articles.content],
                                 it[com.example.ApplicationKt.Articles.name],
                                 it[com.example.ApplicationKt.Articles.category].value,
                                 it[com.example.ApplicationKt.Articles.imageUrl],
                                 it[com.example.ApplicationKt.Articles.createdAt],
                                 it[com.example.ApplicationKt.Articles.author],
-                                it[com.example.ApplicationKt.Articles.views],
-
-                                )
+                                it[com.example.ApplicationKt.Articles.views]
+                            )
                         }
                 }
+
                 call.respond(latestArticles)
             }
 
-// Fetch trending articles
-            get("/articles/trending") {
+            // 🔸 Fetch trending articles
+            get("/trending") {
                 val trendingArticles = transaction {
                     com.example.ApplicationKt.Articles
                         .selectAll()
@@ -216,22 +295,32 @@ fun Application.configureRouting() {
                         .map {
                             com.example.Article(
                                 it[com.example.ApplicationKt.Articles.id],
-                                it[Articles.title],
+                                it[com.example.ApplicationKt.Articles.title],
                                 it[com.example.ApplicationKt.Articles.content],
                                 it[com.example.ApplicationKt.Articles.name],
                                 it[com.example.ApplicationKt.Articles.category].value,
                                 it[com.example.ApplicationKt.Articles.imageUrl],
                                 it[com.example.ApplicationKt.Articles.createdAt],
                                 it[com.example.ApplicationKt.Articles.author],
-                                it[com.example.ApplicationKt.Articles.views],
-
-                                )
+                                it[com.example.ApplicationKt.Articles.views]
+                            )
                         }
                 }
+
                 call.respond(trendingArticles)
             }
-
         }
+
+
+
+
+
+
+
+
+
+
+
 
 
         // Get All Articles
@@ -360,35 +449,76 @@ fun Application.configureRouting() {
             }
         }
 
+//        get("/articles/{id}") {
+//            val idParam = call.parameters["id"]?.toIntOrNull()
+//                ?: return@get call.respond(HttpStatusCode.BadRequest, "Invalid or missing article ID")
+//
+//            val article = transaction {
+//                val result = com.example.ApplicationKt.Articles
+//                    .select { com.example.ApplicationKt.Articles.id eq idParam }
+//                    .singleOrNull()
+//
+//                // If article is found, increment views
+//                result?.let {
+//                    com.example.ApplicationKt.Articles.update({ com.example.ApplicationKt.Articles.id eq idParam }) {
+//                        with(SqlExpressionBuilder) {
+//                            it.update(views, views + 1) // Increment views properly
+//                        }
+//                    }
+////
+//                    com.example.Article(
+//                        it[com.example.ApplicationKt.Articles.id],
+//                        it[com.example.ApplicationKt.Articles.title],
+//                        it[com.example.ApplicationKt.Articles.content],
+//                        it[com.example.ApplicationKt.Articles.name],
+//                        it[com.example.ApplicationKt.Articles.category].value,
+//                        it[com.example.ApplicationKt.Articles.imageUrl],
+//                        it[com.example.ApplicationKt.Articles.createdAt],
+//                        it[com.example.ApplicationKt.Articles.author],
+//                        it[com.example.ApplicationKt.Articles.views]
+//                    )
+//                }
+//            }
+//
+//            article?.let {
+//                call.respond(HttpStatusCode.OK, it)
+//            } ?: call.respond(HttpStatusCode.NotFound, "Article not found")
+//        }
+
         get("/articles/{id}") {
             val idParam = call.parameters["id"]?.toIntOrNull()
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "Invalid or missing article ID")
 
             val article = transaction {
-                val result = com.example.ApplicationKt.Articles
+                val exists = com.example.ApplicationKt.Articles
                     .select { com.example.ApplicationKt.Articles.id eq idParam }
                     .singleOrNull()
 
-                // If article is found, increment views
-                result?.let {
+                if (exists != null) {
+                    // Increment views
                     com.example.ApplicationKt.Articles.update({ com.example.ApplicationKt.Articles.id eq idParam }) {
                         with(SqlExpressionBuilder) {
-                            it.update(views, views + 1) // Increment views properly
+                            it.update(views, views + 1)
                         }
                     }
-//
-                    com.example.Article(
-                        it[com.example.ApplicationKt.Articles.id],
-                        it[com.example.ApplicationKt.Articles.title],
-                        it[com.example.ApplicationKt.Articles.content],
-                        it[com.example.ApplicationKt.Articles.name],
-                        it[com.example.ApplicationKt.Articles.category].value,
-                        it[com.example.ApplicationKt.Articles.imageUrl],
-                        it[com.example.ApplicationKt.Articles.createdAt],
-                        it[com.example.ApplicationKt.Articles.author],
-                        it[com.example.ApplicationKt.Articles.views]
-                    )
-                }
+
+                    // Fetch the updated article
+                    com.example.ApplicationKt.Articles
+                        .select { com.example.ApplicationKt.Articles.id eq idParam }
+                        .map {
+                            com.example.Article(
+                                it[com.example.ApplicationKt.Articles.id],
+                                it[com.example.ApplicationKt.Articles.title],
+                                it[com.example.ApplicationKt.Articles.content],
+                                it[com.example.ApplicationKt.Articles.name],
+                                it[com.example.ApplicationKt.Articles.category].value,
+                                it[com.example.ApplicationKt.Articles.imageUrl],
+                                it[com.example.ApplicationKt.Articles.createdAt],
+                                it[com.example.ApplicationKt.Articles.author],
+                                it[com.example.ApplicationKt.Articles.views]
+                            )
+                        }.firstOrNull()
+                } else null
             }
 
             article?.let {
@@ -398,9 +528,10 @@ fun Application.configureRouting() {
 
 
 
-
         // Get Articles by Category
-        get("/articles/name/{categoryName}")
+//        get("/articles/name/{categoryName}")
+        get("/{categoryName}/articles")
+
         {
             val categoryName = call.parameters["categoryName"]
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "Missing category name")
@@ -599,6 +730,7 @@ fun Application.configureRouting() {
 
 
     }
+
 
 }
 
