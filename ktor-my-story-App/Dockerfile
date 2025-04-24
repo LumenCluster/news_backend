@@ -1,22 +1,18 @@
-# Stage 1: Build
+# Step 1: Build Stage
 FROM gradle:8.5-jdk17 AS build
-WORKDIR /app
+WORKDIR /workspace
 COPY ktor-my-story-App/ .
-RUN chmod +x gradlew && \
-    ./gradlew --no-daemon installDist
+RUN chmod +x gradlew && ./gradlew installDist
 
-# Stage 2: Runtime
-FROM eclipse-temurin:17-jre-alpine
+# Step 2: Run Stage
+FROM eclipse-temurin:17-jdk
 WORKDIR /app
-COPY --from=build /app/build/install/ktor-my-story-App /app
 
-# Security best practices
-RUN adduser --disabled-password --no-create-home ktor-user && \
-    chown -R ktor-user:ktor-user /app
-USER ktor-user
+# Copy the *contents* of the built distro into /app
+COPY --from=build /workspace/build/install/ktor-my-story-App/ . 
 
+# Expose the HTTP port
 EXPOSE 8080
-HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget -qO- http://localhost:8080/health || exit 1
 
-ENTRYPOINT ["./bin/ktor-my-story-app"]
+# Start the Ktor app
+CMD ["bin/ktor-my-story-App"]
