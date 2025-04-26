@@ -69,8 +69,9 @@ fun Application.configureRouting() {
         }
 
         // Get articles Category by name
-//        get("/articles/categories/{name}")
-        get("/categories/{name}") {
+       get("/articles/categories/{name}")
+        // get("/categories/{name}") 
+        {
             val name = call.parameters["name"]?.lowercase()
                 ?: return@get call.respond(HttpStatusCode.BadRequest, "Invalid category")
 
