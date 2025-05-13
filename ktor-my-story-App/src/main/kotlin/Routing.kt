@@ -242,53 +242,27 @@ fun Application.configureRouting() {
         route("/articles") {
 
             // Create a new article
-            // post {
-            //     val article = call.receive<com.example.Article>()
-
-            //     transaction {
-            //         com.example.ApplicationKt.Articles.insert {
-            //             it[title] = article.title
-            //             it[com.example.ApplicationKt.Articles.content] = article.content
-            //             it[com.example.ApplicationKt.Articles.name] = article.name
-            //             it[com.example.ApplicationKt.Articles.category] = article.category
-            //             it[com.example.ApplicationKt.Articles.imageUrl] = article.imageUrl ?: ""
-            //             it[com.example.ApplicationKt.Articles.createdAt] = System.currentTimeMillis()
-            //             it[com.example.ApplicationKt.Articles.author] = article.author
-            //             it[com.example.ApplicationKt.Articles.views] = article.views
-            //         }
-            //     }
-
-            //     call.respond(HttpStatusCode.Created, "Article added")
-            // }
             post {
-                val article = call.receive<Article>()
-
-                   transaction {
-                   Articles.insert{
-                        it[title] = article.title
-                        it[content] = article.content
-                        it[name] = article.name
-                        it[category] = article.category
-                        it[imageUrl] = article.imageUrl ?: ""
-                        it[createdAt] = System.currentTimeMillis()
-                        it[author] = article.author
-                        it[views] = article.views
-                    }
-                }
+                val article = call.receive<com.example.Article>()
 
                 transaction {
-                    Notifications.insert {
+                    com.example.ApplicationKt.Articles.insert {
                         it[title] = article.title
-                        it[name] = article.name
-                        it[imageUrl] = article.imageUrl ?: ""
-                        it[author] = article.author
-                        it[isRead] = false
-                        it[createdAt] = System.currentTimeMillis()
+                        it[com.example.ApplicationKt.Articles.content] = article.content
+                        it[com.example.ApplicationKt.Articles.name] = article.name
+                        it[com.example.ApplicationKt.Articles.category] = article.category
+                        it[com.example.ApplicationKt.Articles.imageUrl] = article.imageUrl ?: ""
+                        it[com.example.ApplicationKt.Articles.createdAt] = System.currentTimeMillis()
+                        it[com.example.ApplicationKt.Articles.author] = article.author
+                        it[com.example.ApplicationKt.Articles.views] = article.views
                     }
                 }
 
-                call.respond(HttpStatusCode.Created, "New Article and Notification added")
+                call.respond(HttpStatusCode.Created, "Article added")
             }
+
+
+
 
             //  Fetch latest articles
             get("/latest") {
@@ -343,25 +317,6 @@ fun Application.configureRouting() {
 
 
 
-        get("/notifications") {
-            val notifications = transaction {
-                Notifications.selectAll()
-                    .orderBy(Notifications.createdAt, SortOrder.DESC)
-                    .map {
-                        Notification(
-                            id = it[Notifications.id].value,
-                            title = it[Notifications.title],
-                            name = it[Notifications.name],
-                            imageUrl = it[Notifications.imageUrl],
-                            author = it[Notifications.author],
-                            isRead = it[Notifications.isRead],
-                            createdAt = it[Notifications.createdAt]
-                        )
-                    }
-            }
-
-            call.respond(notifications)
-        }
 
 
 
