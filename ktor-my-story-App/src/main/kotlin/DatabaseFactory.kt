@@ -30,7 +30,7 @@ object DatabaseFactory {
         val dataSource = HikariDataSource(config)
         Database.connect(dataSource)
         transaction {
-            SchemaInitializer.createTables()
+         SchemaInitializer.createTables()
         }
     }
 }
