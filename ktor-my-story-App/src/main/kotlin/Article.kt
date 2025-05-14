@@ -20,14 +20,4 @@ data class Category(
     val id: Int,
     val name: String
 )
-@Serializable
-data class Notification(
-    val id: Int,
-    val title: String,
-    val name: String, // category name
-    val imageUrl: String?,
-    val author: String,
-    val isRead: Boolean,
-    val createdAt: Long
-)
 
