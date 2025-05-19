@@ -8,7 +8,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
             transaction {
                 SchemaUtils.create(Categories)
                 SchemaUtils.create(Articles)
-                SchemaUtils.drop(Notifications) 
                 SchemaUtils.create(Notifications) 
 
 
