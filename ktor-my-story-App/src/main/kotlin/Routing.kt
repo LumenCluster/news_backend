@@ -373,7 +373,7 @@ get("/notifications") {
                     author = it[Notifications.author],
                     isRead = it[Notifications.isRead],
                     createdAt = it[Notifications.createdAt],
-                    views = it[Notifications.views]
+                    // views = it[Notifications.views]
                 )
             }
     }
