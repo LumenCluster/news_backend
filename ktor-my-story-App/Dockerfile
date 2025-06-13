@@ -15,7 +15,7 @@ COPY ktor-my-story-App/ .
 
 # Ensure the Gradle wrapper is executable.
 # This is necessary before you can run any './gradlew' commands.
-RUN chmod +x gradlew
+RUN chmod +x gradlew  && ./gradlew installDist
 
 # Build the application using the 'installDist' Gradle task.
 # 'installDist' creates a runnable distribution in 'build/install/<project-name>'.
