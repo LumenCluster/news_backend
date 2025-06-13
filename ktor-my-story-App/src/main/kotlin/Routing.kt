@@ -287,7 +287,7 @@ fun Application.configureRouting() {
                         it[author] = article.author
                         it[isRead] = false
                         it[createdAt] = System.currentTimeMillis()
-                        it[views] = article.views
+                        // it[views] = article.views
 
                     }
                 }
