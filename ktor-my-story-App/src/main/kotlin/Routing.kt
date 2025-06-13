@@ -287,6 +287,8 @@ fun Application.configureRouting() {
                         it[author] = article.author
                         it[isRead] = false
                         it[createdAt] = System.currentTimeMillis()
+                        it[views] = article.views
+
                     }
                 }
 
@@ -348,36 +350,36 @@ fun Application.configureRouting() {
             }
         }
 
-            get("/notifications") {
-                val sevenDaysAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
-                val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
-   //         val fifteenMinutesAgo = System.currentTimeMillis() - (5 * 60 * 1000L)
+         get("/notifications") {
+        val sevenDaysAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
+               val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+        // val fifteenMinutesAgo = System.currentTimeMillis() - (5 * 60 * 1000L)
 
-                // Delete notifications older than 30 days
-                transaction {
-                    Notifications.deleteWhere { Notifications.createdAt less thirtyDaysAgo }
-                }
+        // Delete notifications older than 30 days
+        transaction {
+            Notifications.deleteWhere { Notifications.createdAt less thirtyDaysAgo }
+        }
 
-                // Fetch the latest 10 articles (adjust limit as needed)
-                val notifications = transaction {
-                    Notifications.select { Notifications.createdAt greaterEq sevenDaysAgo }
+             val notifications = transaction {
+                 Notifications.selectAll()
+                     .orderBy(Notifications.createdAt, SortOrder.DESC)
+                     .map {
+                         Notification(
+                             id = it[Notifications.id].value,
+                             title = it[Notifications.title],
+                             name = it[Notifications.name],
+                             imageUrl = it[Notifications.imageUrl],
+                             author = it[Notifications.author],
+                             isRead = it[Notifications.isRead],
+                             createdAt = it[Notifications.createdAt],
+                             views = it[Notifications.views]
+                         )
+                     }
+             }
 
-                    (Articles innerJoin Categories) // Join with Categories to get category name
-                        .selectAll()
-                        .orderBy(Articles.createdAt, SortOrder.DESC)
-                        .limit(10)
-                        .map {
-                            mapOf(
-                                "title" to it[Articles.title],
-                                "category" to it[Categories.name], // Resolve category name
-                                "author" to it[Articles.author],
-                                "createdAt" to it[Articles.createdAt]
-                            )
-                        }
-                }
+             call.respond(notifications)
+         }
 
-                call.respond(notifications)
-            }
 
 
 
