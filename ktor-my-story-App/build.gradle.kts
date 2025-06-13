@@ -29,7 +29,6 @@ repositories {
 //}
 
 dependencies {
- // val  exposed_version="0.31.1"
     val exposed_version = "0.41.1"
 
     val hikaricp_version="4.0.3"
@@ -54,52 +53,6 @@ dependencies {
     testImplementation(libs.kotlin.test.junit)
 
 
-
-
-
-
-
-
-
- //   implementation(libs.ktor.server.core)
- //   implementation(libs.ktor.server.netty)
- //   implementation(libs.logback.classic)
-  //  implementation(libs.ktor.server.core)
- //   testImplementation(libs.ktor.server.test.host)
-//    testImplementation(libs.kotlin.test.junit)
-//    implementation(libs.ktor.serialization.kotlinx.json)
-//    implementation(libs.ktor.server.content.negotiation)
-//    implementation(libs.postgresql)
-//    implementation(libs.h2)
-//    implementation("com.h2database:h2:2.2.224") // or the latest version
-
-//    implementation(libs.ktor.serialization.gson)
- //   implementation(libs.logback.classic)
-//    implementation(libs.ktor.server.content.negotiation)
-
-//    implementation ("com.zaxxer:HikariCP:$hikaricp_version")
-
-//    implementation(libs.ktor.serialization.kotlinx.json)
-//    implementation(libs.ktor.server.content.negotiation)
-//    implementation(libs.postgresql)
-//    implementation(libs.h2)
-//    implementation(libs.ktor.serialization.gson)
-
-
-    // Ktor
- //   implementation("io.ktor:ktor-server-core:3.0.3")
- //   implementation("io.ktor:ktor-serialization-kotlinx-json:3.0.3")
-  //  implementation("io.ktor:ktor-server-cors-jvm:3.0.3") // CORS Plugin
-  //  implementation("io.ktor:ktor-server-content-negotiation")
-
-
-  //  implementation ("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
- //   implementation ("org.jetbrains.exposed:exposed-dao:$exposed_version")
-//    implementation ("org.jetbrains.exposed:exposed-jdbc:$exposed_version")
-   // implementation("org.postgresql:postgresql:42.7.5")
-   // implementation("com.zaxxer:HikariCP:5.0.1")
-    // Kotlinx Serialization
-   // implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.0")
 
 
 
