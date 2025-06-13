@@ -348,38 +348,37 @@ fun Application.configureRouting() {
             }
         }
 
-        get("/notifications") {
-            val sevenDaysAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
-//            val fifteenMinutesAgo = System.currentTimeMillis() - (15 * 60 * 1000L)
-            val thirtyDaysAgo = System.currentTimeMillis() - (30L * 24 * 60 * 60 * 1000)
+            get("/notifications") {
+                val sevenDaysAgo = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)
+                val thirtyDaysAgo = System.currentTimeMillis() - (30 * 24 * 60 * 60 * 1000L)
+   //         val fifteenMinutesAgo = System.currentTimeMillis() - (5 * 60 * 1000L)
 
+                // Delete notifications older than 30 days
+                transaction {
+                    Notifications.deleteWhere { Notifications.createdAt less thirtyDaysAgo }
+                }
 
-            // Delete notifications older than 15 minutes (for testing)
-            transaction {
-                Notifications.deleteWhere { Notifications.createdAt less thirtyDaysAgo}
+                // Fetch the latest 10 articles (adjust limit as needed)
+                val notifications = transaction {
+                    Notifications.select { Notifications.createdAt greaterEq sevenDaysAgo }
+
+                    (Articles innerJoin Categories) // Join with Categories to get category name
+                        .selectAll()
+                        .orderBy(Articles.createdAt, SortOrder.DESC)
+                        .limit(10)
+                        .map {
+                            mapOf(
+                                "title" to it[Articles.title],
+                                "category" to it[Categories.name], // Resolve category name
+                                "author" to it[Articles.author],
+                                "createdAt" to it[Articles.createdAt]
+                            )
+                        }
+                }
+
+                call.respond(notifications)
             }
 
-            // Fetch notifications from last 7 days, sorted by latest
-            val notifications = transaction {
-                Notifications
-                    .select { Notifications.createdAt greaterEq sevenDaysAgo }
-                    .orderBy(Notifications.createdAt, SortOrder.DESC)
-                    .map {
-                        Notification(
-                            id = it[Notifications.id].value,
-                            title = it[Notifications.title],
-                            name = it[Notifications.name],
-                            imageUrl = it[Notifications.imageUrl],
-                            author = it[Notifications.author],
-                            isRead = it[Notifications.isRead],
-                            createdAt = it[Notifications.createdAt],
-                            views = it[Notifications.views]
-                        )
-                    }
-            }
-
-            call.respond(notifications)
-        }
 
 
         // get("/notifications") {
