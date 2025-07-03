@@ -197,16 +197,58 @@ name: newCategory};
         });
       }
     } 
+    function cleanText(text) {
+  return text
+    .replace(/[“”«»„‟❝❞]/g, '"')          // Replace various double quotes
+    .replace(/[‘’‚‛❛❜]/g, "'")             // Replace various single quotes
+    .replace(/–|—|―/g, "-")                // Replace en dash, em dash, horizontal bar with -
+    .replace(/…/g, "...")                  // Replace ellipsis
+    .replace(/•|‣|◦|∙/g, "*")              // Replace bullets with asterisk
+    .replace(/\u00A0/g, " ")               // Non-breaking space -> regular space
+    .replace(/\u2028|\u2029/g, "\n")       // Line separators -> newline
+    .replace(/\u200B/g, "")                // Zero-width space -> remove
+    .replace(/¢/g, "c")                    // Cent sign
+    .replace(/£/g, "GBP")                  // Pound
+    .replace(/€|₤/g, "EUR")                // Euro
+    .replace(/©/g, "(c)")
+    .replace(/®/g, "(r)")
+    .replace(/™/g, "TM")
+    .replace(/†/g, "+")                    // Dagger
+    .replace(/‡/g, "++")                   // Double dagger
+    .replace(/‰/g, " per mille ")
+    .replace(/•/g, "*")                    // Bullet
+    .replace(/\uFB01/g, "fi")              // fi ligature
+    .replace(/\uFB02/g, "fl")              // fl ligature
+    .replace(/\uFFFD/g, "")                // Replacement character (�)
+    .replace(/[\u2010-\u2015]/g, "-")      // Various hyphens
+    .replace(/[\u2000-\u200A]/g, " ")      // Various thin spaces → regular space
+    .replace(/[\uFEFF]/g, "")              // Byte Order Mark (BOM) → remove
+    .trim();                               // Final cleanup
+}
 
+
+
+
+
+
+
+
+
+
+    
     // Add Article
     document.getElementById("add-article-btn").addEventListener("click", () => {
       const id = parseInt(document.getElementById("id").value);
-      const title = document.getElementById("title").value.trim();
-      const content = document.getElementById("content").value.trim();
+      // const title = document.getElementById("title").value.trim();
+      // const content = document.getElementById("content").value.trim();
+      const title = cleanText(document.getElementById("title").value.trim());
+      const content = cleanText(document.getElementById("content").value.trim());
+
       const categoryID = parseInt(document.getElementById("categoryID").value);
       const imageUrl = document.getElementById("image").value.trim();
       const createdAt = new Date(document.getElementById("createdAt").value).getTime() || Date.now();
-      const author = document.getElementById("author").value.trim();
+      // const author = document.getElementById("author").value.trim();
+      const author = cleanText(document.getElementById("author").value.trim());
       const name = document.getElementById("categoryID").selectedOptions[0].text;
 
       if (!title || !content || !author || isNaN(categoryID)) {
@@ -270,16 +312,28 @@ name: newCategory};
                 const category = Array.from(categorySelect.options)
                     .find(opt => opt.value === newCategoryId);
 
-                const updateData = {
-                    ...article,
-                    title: newTitle,
-                    content: newContent,
-                    author: newAuthor,
-                    imageUrl: newImageUrl,
+                // const updateData = {
+                //     ...article,
+                //     title: newTitle,
+                //     content: newContent,
+                //     author: newAuthor,
+                //     imageUrl: newImageUrl,
+                //     createdAt: new Date(newCreatedAt).getTime(),
+                //     category: parseInt(newCategoryId),
+                //     name: category ? category.text : article.name
+                // };
+
+              const updateData = {
+                   ...article,
+                     title: cleanText(newTitle),
+                     content: cleanText(newContent),
+                     author: cleanText(newAuthor),
+                    imageUrl: cleanText(newImageUrl || ""), // optional
                     createdAt: new Date(newCreatedAt).getTime(),
-                    category: parseInt(newCategoryId),
-                    name: category ? category.text : article.name
+                  category: parseInt(newCategoryId),
+                  name: cleanText(category ? category.text : article.name)
                 };
+
 
                 axios.put(`${API_URL}/articles/${id}`, updateData)
                     .then(() => {
