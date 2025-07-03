@@ -38,6 +38,10 @@ fun Application.configureRouting() {
 
             call.respond(homeArticles)
         }
+        //ping for awake the backend
+get("/ping") {
+    call.respondText("OK")
+}
 
 
         get("/articles/categories") {
