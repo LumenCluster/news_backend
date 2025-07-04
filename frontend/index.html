@@ -275,10 +275,9 @@ name: newCategory};
     document.getElementById("add-article-btn").addEventListener("click", () => {
       const id = parseInt(document.getElementById("id").value);
       // const title = document.getElementById("title").value.trim();
-      // const content = document.getElementById("content").value.trim();
       const title = cleanText(document.getElementById("title").value.trim());
-      const content = cleanText(document.getElementById("content").value.trim());
-
+      // const content = cleanText(document.getElementById("content").value.trim());
+      const content = document.getElementById("content").value.trim();
       const categoryID = parseInt(document.getElementById("categoryID").value);
       const imageUrl = document.getElementById("image").value.trim();
       const createdAt = new Date(document.getElementById("createdAt").value).getTime() || Date.now();
