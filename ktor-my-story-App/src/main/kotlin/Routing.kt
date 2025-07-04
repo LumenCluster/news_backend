@@ -42,6 +42,15 @@ fun Application.configureRouting() {
 get("/ping") {
     call.respondText("OK")
 }
+    // For UptimeRobot
+    head("/health") {
+        call.respond(HttpStatusCode.OK)
+    }
+
+    // For manual browser/API check (optional)
+    get("/health") {
+        call.respondText("Healthy ✅", ContentType.Text.Plain)
+    }
 
 
         get("/articles/categories") {
