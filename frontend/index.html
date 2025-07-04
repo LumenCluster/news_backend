@@ -233,7 +233,7 @@ name: newCategory};
       }
     } 
     
-/*    function cleanText(text) {
+   function cleanText(text) {
   return text
     .replace(/[“”«»„‟❝❞]/g, '"')          // Replace various double quotes
     .replace(/[‘’‚‛❛❜]/g, "'")             // Replace various single quotes
@@ -261,7 +261,7 @@ name: newCategory};
     .replace(/[\uFEFF]/g, "")              // Byte Order Mark (BOM) → remove
     .trim();                               // Final cleanup
 }
-*/
+
 
 
 
@@ -275,16 +275,16 @@ name: newCategory};
     // Add Article
     document.getElementById("add-article-btn").addEventListener("click", () => {
       const id = parseInt(document.getElementById("id").value);
-      const title = document.getElementById("title").value.trim();
-      // const title = cleanText(document.getElementById("title").value.trim());
-      // const content = cleanText(document.getElementById("content").value.trim());
-      const content = document.getElementById("content").value.trim();
+      // const title = document.getElementById("title").value.trim();
+      const title = cleanText(document.getElementById("title").value.trim());
+      const content = cleanText(document.getElementById("content").value.trim());
+      // const content = document.getElementById("content").value.trim();
       const categoryID = parseInt(document.getElementById("categoryID").value);
       const imageUrl = document.getElementById("image").value.trim();
       const createdAt = new Date(document.getElementById("createdAt").value).getTime() || Date.now();
       const author = document.getElementById("author").value.trim();
-      // const author = cleanText(document.getElementById("author").value.trim());
-      const name = document.getElementById("categoryID").selectedOptions[0].text;
+      const author = cleanText(document.getElementById("author").value.trim());
+      // const name = document.getElementById("categoryID").selectedOptions[0].text;
 
       if (!title || !content || !author || isNaN(categoryID)) {
         alert("Please fill in all required fields.");
@@ -401,10 +401,9 @@ name: newCategory};
 }
 function saveArticleChanges() {
   const id = parseInt(document.getElementById("edit-id").value);
-  // const title = cleanText(document.getElementById("edit-title").value.trim());
-    const title = document.getElementById("edit-title").value.trim();
-  const content = document.getElementById("edit-content").value.trim();
-  const author = document.getElementById("edit-author").value.trim();
+  const title = cleanText(document.getElementById("edit-title").value.trim());
+   const content = cleanText(document.getElementById("content").value.trim());
+   const author = cleanText(document.getElementById("author").value.trim());
   const imageUrl = document.getElementById("edit-image").value.trim();
   const createdAt = new Date(document.getElementById("edit-createdAt").value).getTime();
   const category = parseInt(document.getElementById("edit-category").value);
@@ -414,8 +413,7 @@ function saveArticleChanges() {
   const updateData = {
     id, title, content, author, imageUrl, createdAt,
     category,
-    // name: cleanText(categoryName),
-        name: categoryName,
+    name: cleanText(categoryName),
 
     views: 0
   };
