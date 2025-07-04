@@ -118,7 +118,7 @@
         const articlesTable = document.getElementById("articles-table");
         articlesTable.innerHTML = "";
 
-        response.data.forEach(article => {
+      /*  response.data.forEach(article => {
           articlesTable.innerHTML += `
             <tr>
               <td>${article.id}</td>
@@ -135,7 +135,33 @@
                 <button class="btn btn-sm btn-danger" onclick="deleteArticle(${article.id})">Delete</button>
               </td>
             </tr>`;
-        });
+        }); */
+
+response.data.forEach(article => {
+  const row = document.createElement("tr");
+  row.innerHTML = `
+    <td>${article.id}</td>
+    <td>${article.title}</td>
+    <td></td> <!-- empty cell to be filled with real HTML -->
+    <td>${article.name}</td>
+    <td>${article.category}</td>
+    <td>${article.imageUrl}</td>
+    <td>${new Date(article.createdAt).toLocaleString()}</td>
+    <td>${article.author}</td>
+    <td>${article.views}</td>
+    <td>
+      <button class="btn btn-sm btn-primary" onclick="updateArticle(${article.id})">Update</button>
+      <button class="btn btn-sm btn-danger" onclick="deleteArticle(${article.id})">Delete</button>
+    </td>
+  `;
+
+  // ✅ Render content as HTML (like <a href...>) so links work!
+  row.cells[2].innerHTML = article.content;
+
+  articlesTable.appendChild(row);
+});
+
+        
       });
     }
 
