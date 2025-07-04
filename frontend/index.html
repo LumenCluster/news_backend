@@ -246,9 +246,7 @@ name: newCategory};
     .replace(/¢/g, "c")                    // Cent sign
     .replace(/£/g, "GBP")                  // Pound
     .replace(/€|₤/g, "EUR")                // Euro
-    .replace(/©/g, "(c)")
     .replace(/®/g, "(r)")
-    .replace(/™/g, "TM")
     .replace(/†/g, "+")                    // Dagger
     .replace(/‡/g, "++")                   // Double dagger
     .replace(/‰/g, " per mille ")
@@ -263,6 +261,9 @@ name: newCategory};
 }
 
 
+    // .replace(/©/g, "(c)")
+    //     .replace(/™/g, "TM")
+
 
 
 
@@ -275,16 +276,13 @@ name: newCategory};
     // Add Article
     document.getElementById("add-article-btn").addEventListener("click", () => {
       const id = parseInt(document.getElementById("id").value);
-      // const title = document.getElementById("title").value.trim();
       const title = cleanText(document.getElementById("title").value.trim());
       const content = cleanText(document.getElementById("content").value.trim());
-      // const content = document.getElementById("content").value.trim();
       const categoryID = parseInt(document.getElementById("categoryID").value);
       const imageUrl = document.getElementById("image").value.trim();
       const createdAt = new Date(document.getElementById("createdAt").value).getTime() || Date.now();
-      const author = document.getElementById("author").value.trim();
       const author = cleanText(document.getElementById("author").value.trim());
-      // const name = document.getElementById("categoryID").selectedOptions[0].text;
+      const name = document.getElementById("categoryID").selectedOptions[0].text;
 
       if (!title || !content || !author || isNaN(categoryID)) {
         alert("Please fill in all required fields.");
@@ -402,8 +400,8 @@ name: newCategory};
 function saveArticleChanges() {
   const id = parseInt(document.getElementById("edit-id").value);
   const title = cleanText(document.getElementById("edit-title").value.trim());
-   const content = cleanText(document.getElementById("content").value.trim());
-   const author = cleanText(document.getElementById("author").value.trim());
+  const content = cleanText(document.getElementById("edit-content").value.trim());
+  const author = cleanText(document.getElementById("edit-author").value.trim());
   const imageUrl = document.getElementById("edit-image").value.trim();
   const createdAt = new Date(document.getElementById("edit-createdAt").value).getTime();
   const category = parseInt(document.getElementById("edit-category").value);
@@ -472,7 +470,7 @@ function saveArticleChanges() {
 <!--        <textarea id="edit-content" class="form-control my-2" placeholder="Content" rows="6"></textarea> -->
         <textarea id="edit-content" class="form-control my-2" placeholder="Content" rows="6" style="resize: vertical;"></textarea>
 
-        <input type="text" id="edit-author" class="form-control my-2" placeholder="Author" /> -->
+        <input type="text" id="edit-author" class="form-control my-2" placeholder="Author" /> 
         <input type="text" id="edit-image" class="form-control my-2" placeholder="Image URL" />
         <input type="datetime-local" id="edit-createdAt" class="form-control my-2" />
         <input type="number" id="edit-category" class="form-control my-2" placeholder="Category ID" />
