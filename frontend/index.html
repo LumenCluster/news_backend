@@ -380,11 +380,14 @@ name: newCategory};
 // }
 
 
+let currentArticleViews = 0;
 
 
     function updateArticle(id) {
   axios.get(`${API_URL}/articles/${id}`).then(response => {
     const article = response.data;
+         currentArticleViews = article.views;
+
     document.getElementById("edit-id").value = article.id;
     document.getElementById("edit-title").value = article.title;
     document.getElementById("edit-content").value = article.content;
@@ -412,8 +415,9 @@ function saveArticleChanges() {
     id, title, content, author, imageUrl, createdAt,
     category,
     name: cleanText(categoryName),
+             views: currentArticleViews 
 
-    views: 0
+  
   };
 
   axios.put(`${API_URL}/articles/${id}`, updateData).then(() => {
