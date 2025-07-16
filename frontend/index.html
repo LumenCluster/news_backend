@@ -246,6 +246,7 @@ name: newCategory};
     .replace(/£/g, "GBP")                  // Pound
     .replace(/€|₤/g, "EUR")                // Euro
     .replace(/®/g, "(r)")
+    .replace(/–|—|―/g, "—")                // Replace en dash, em dash, horizontal bar with -
     .replace(/†/g, "+")                    // Dagger
     .replace(/‡/g, "++")                   // Double dagger
     .replace(/‰/g, " per mille ")
@@ -259,7 +260,9 @@ name: newCategory};
     .trim();                               // Final cleanup
 }
 
-    // .replace(/–|—|―/g, "-")                // Replace en dash, em dash, horizontal bar with -
+    // .replace(/–|—|―/g, "—")                // Replace en dash, em dash, horizontal bar with -
+        // .replace(/–|—|―/g, "—")                // Replace en dash, em dash, horizontal bar with -
+
     // .replace(/©/g, "(c)")
     //     .replace(/™/g, "TM")
     // .replace(/[\u2010-\u2015]/g, "-")    // Various hyphens (but explicitly not em/en dash now)
