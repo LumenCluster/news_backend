@@ -237,7 +237,9 @@ name: newCategory};
   return text
     .replace(/[“”«»„‟❝❞]/g, '"')          // Replace various double quotes
     .replace(/[‘’‚‛❛❜]/g, "'")             // Replace various single quotes
-    .replace(/–|—|―/g, "-")                // Replace en dash, em dash, horizontal bar with -
+    // .replace(/–|—|―/g, "-")                // Replace en dash, em dash, horizontal bar with -
+        .replace(/–|―/g, "-")              // Replace en dash, horizontal bar with - (keep em dash)
+
     .replace(/…/g, "...")                  // Replace ellipsis
     .replace(/•|‣|◦|∙/g, "*")              // Replace bullets with asterisk
     .replace(/\u00A0/g, " ")               // Non-breaking space -> regular space
