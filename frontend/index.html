@@ -254,6 +254,7 @@ name: newCategory};
     .replace(/\uFB02/g, "fl")              // fl ligature
     .replace(/\uFFFD/g, "")                // Replacement character (�)
     .replace(/[\u2000-\u200A]/g, " ")      // Various thin spaces → regular space
+    .replace(/[\u2010-\u2015]/g, "—")    // Various hyphens (but explicitly not em/en dash now)
     .replace(/[\uFEFF]/g, "")              // Byte Order Mark (BOM) → remove
     .trim();                               // Final cleanup
 }
