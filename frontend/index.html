@@ -237,9 +237,7 @@ name: newCategory};
   return text
     .replace(/[“”«»„‟❝❞]/g, '"')          // Replace various double quotes
     .replace(/[‘’‚‛❛❜]/g, "'")             // Replace various single quotes
-    // .replace(/–|—|―/g, "-")                // Replace en dash, em dash, horizontal bar with -
-        .replace(/–|―/g, "-")              // Replace en dash, horizontal bar with - (keep em dash)
-
+    .replace(/–|―/g, "-")              // Replace en dash, horizontal bar with - (keep em dash)
     .replace(/…/g, "...")                  // Replace ellipsis
     .replace(/•|‣|◦|∙/g, "*")              // Replace bullets with asterisk
     .replace(/\u00A0/g, " ")               // Non-breaking space -> regular space
@@ -256,17 +254,18 @@ name: newCategory};
     .replace(/\uFB01/g, "fi")              // fi ligature
     .replace(/\uFB02/g, "fl")              // fl ligature
     .replace(/\uFFFD/g, "")                // Replacement character (�)
-    .replace(/[\u2010-\u2015]/g, "-")      // Various hyphens
+    .replace(/[\u2010-\u2015]/g, "-")    // Various hyphens (but explicitly not em/en dash now)
     .replace(/[\u2000-\u200A]/g, " ")      // Various thin spaces → regular space
     .replace(/[\uFEFF]/g, "")              // Byte Order Mark (BOM) → remove
     .trim();                               // Final cleanup
 }
 
-
+    // .replace(/–|—|―/g, "-")                // Replace en dash, em dash, horizontal bar with -
     // .replace(/©/g, "(c)")
     //     .replace(/™/g, "TM")
 
 
+    // .replace(/[\u2010-\u2015]/g, "-")      // Various hyphens
 
 
 
