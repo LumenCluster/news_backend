@@ -273,7 +273,7 @@ name: newCategory};
     // .replace(/[\u2010-\u2015]/g, "-")      // Various hyphens
 
 */
-    function cleanText(text) {
+ /*   function cleanText(text) {
   return text
     // Fix common encoding issues (Windows-1252 to UTF-8)
     .replace(/â/g, "—")                // Fix broken em dash
@@ -322,7 +322,38 @@ name: newCategory};
     .trim();
 }
 
+*/
 
+
+        function cleanText(text) {
+      return text
+        .replace(/â/g, "—")  // corrupted em dash
+        .replace(/â/g, "–")  // corrupted en dash
+        .replace(/â/g, "“")
+        .replace(/â/g, "”")
+        .replace(/â˜/g, "‘")
+        .replace(/â/g, "’")
+        .replace(/â¦/g, "…")
+        .replace(/[“”«»„‟❝❞]/g, '"')
+        .replace(/[‘’‚‛❛❜]/g, "'")
+        .replace(/\u00A0/g, " ")
+        .replace(/\u2028|\u2029/g, "\n")
+        .replace(/\u200B/g, "")
+        .replace(/¢/g, "c")
+        .replace(/£/g, "GBP")
+        .replace(/€|₤/g, "EUR")
+        .replace(/®/g, "(r)")
+        .replace(/†/g, "+")
+        .replace(/‡/g, "++")
+        .replace(/‰/g, " per mille ")
+        .replace(/•|‣|◦|∙/g, "*")
+        .replace(/\uFB01/g, "fi")
+        .replace(/\uFB02/g, "fl")
+        .replace(/\uFFFD/g, "")
+        .replace(/[\u2000-\u200A]/g, " ")
+        .replace(/[\uFEFF]/g, "")
+        .trim();
+        }
 
 
 
