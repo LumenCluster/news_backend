@@ -238,7 +238,6 @@ name: newCategory};
     .replace(/[“”«»„‟❝❞]/g, '"')          // Replace various double quotes
     .replace(/[‘’‚‛❛❜]/g, "'")             // Replace various single quotes
     .replace(/…/g, "...")                  // Replace ellipsis
-    .replace(/–/g, "―")                   // Replace en dash with horizontal bar (optional)
     .replace(/•|‣|◦|∙/g, "*")              // Replace bullets with asterisk
     .replace(/\u00A0/g, " ")               // Non-breaking space -> regular space
     .replace(/\u2028|\u2029/g, "\n")       // Line separators -> newline
@@ -253,15 +252,17 @@ name: newCategory};
     .replace(/•/g, "*")                    // Bullet
     .replace(/\uFB01/g, "fi")              // fi ligature
     .replace(/\uFB02/g, "fl")              // fl ligature
-    .replace(/â/g, "—")                 // Correct fix for broken em dash
+    .replace(/â€”/g, "—") // FIX for garbled em dash
     .replace(/\uFFFD/g, "")                // Replacement character (�)
     .replace(/[\u2000-\u200A]/g, " ")      // Various thin spaces → regular space
     .replace(/[\uFEFF]/g, "")              // Byte Order Mark (BOM) → remove
     .trim();                               // Final cleanup
 }
+    // .replace(/–/g, "―")                   // Replace en dash with horizontal bar (optional)
 
     // .replace(/–|—|―/g, "—")                // Replace en dash, em dash, horizontal bar with -
         // .replace(/–|—|―/g, "—")                // Replace en dash, em dash, horizontal bar with -
+    // .replace(/â/g, "—")                 // Correct fix for broken em dash
 
     // .replace(/©/g, "(c)")
     //     .replace(/™/g, "TM")
