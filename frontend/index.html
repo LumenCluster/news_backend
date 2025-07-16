@@ -238,6 +238,8 @@ name: newCategory};
     .replace(/[“”«»„‟❝❞]/g, '"')          // Replace various double quotes
     .replace(/[‘’‚‛❛❜]/g, "'")             // Replace various single quotes
     .replace(/…/g, "...")                  // Replace ellipsis
+    .replace(/–/g, "-")              // Replace en dash, horizontal bar with - (keep em dash)
+
     .replace(/•|‣|◦|∙/g, "*")              // Replace bullets with asterisk
     .replace(/\u00A0/g, " ")               // Non-breaking space -> regular space
     .replace(/\u2028|\u2029/g, "\n")       // Line separators -> newline
