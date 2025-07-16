@@ -283,6 +283,12 @@ name: newCategory};
     .replace(/â/g, "”")
     .replace(/â¦/g, "…")
 
+
+        // ✅ Keep proper em/en dashes intact
+    .replace(/\u2013/g, "–") // en dash
+    .replace(/\u2014/g, "—") // em dash
+
+
     // Replace alternate quote styles
     .replace(/[“”«»„‟❝❞]/g, '"')
     .replace(/[‘’‚‛❛❜]/g, "'")
