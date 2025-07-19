@@ -1,23 +1,446 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>News Admin Panel</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <script defer src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-  <!-- Bootstrap JS -->
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> 
-  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.0.5/dist/purify.min.js"></script>
-
-
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>News Content Management</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <style>
+    :root {
+      --primary: #4361ee;
+      --secondary: #3f37c9;
+      --success: #4cc9f0;
+      --light: #f8f9fa;
+      --dark: #111213;
+      --bg: #f5f7fb;
+      --card-bg: #ffffff;
+      --text: #050505;
+      --header-bg: linear-gradient(135deg, var(--primary), var(--secondary));
+      --card-header-bg: linear-gradient(to right, #f8f9fa, #e9ecef);
+      --table-header: #edf2ff;
+    }
+    
+    body.dark-mode {
+      --bg: #121212;
+      --card-bg: #575758;
+      --text: #faf7f7;
+      --header-bg: linear-gradient(135deg, #2a3b8f, #1c2774);
+      --card-header-bg: linear-gradient(to right, #806e6e, #252525);
+      --table-header: #2a3b8f;
+      --primary: #5a76f0;
+    }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      padding-bottom: 2rem;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    
+    .header {
+      background: var(--header-bg);
+      color: white;
+      padding: 2rem 0;
+      border-radius: 0 0 20px 20px;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+      border: none;
+      margin-bottom: 1.5rem;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+    
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+      background: var(--card-header-bg);
+      color: var(--text);
+      border-bottom: 1px solid #444;
+      padding: 1.2rem 1.5rem;
+      border-radius: 12px 12px 0 0 !important;
+      font-weight: 600;
+    }
+    
+    .nav-tabs .nav-link {
+      border: none;
+      color: #6c757d;
+      font-weight: 500;
+      padding: 0.8rem 1.5rem;
+      border-radius: 8px 8px 0 0;
+      transition: all 0.3s ease;
+    }
+    
+    .nav-tabs .nav-link.active {
+      background-color: var(--card-bg);
+      color: var(--primary);
+      border-bottom: 3px solid var(--primary);
+      font-weight: 600;
+    }
+    
+    .table thead th {
+      background-color: var(--table-header);
+      color: var(--primary);
+      font-weight: 600;
+      border-top: none;
+    }
+    
+    .table-hover tbody tr {
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+    
+    .table-hover tbody tr:hover {
+      background-color: rgba(67, 97, 238, 0.1);
+    }
+    
+    .status-badge {
+      font-size: 0.8rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 50px;
+    }
+    
+    .btn-primary {
+      background-color: var(--primary);
+      border-color: var(--primary);
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+      background-color: var(--secondary);
+      border-color: var(--secondary);
+      transform: translateY(-2px);
+    }
+    
+    .form-control, .form-select {
+      background-color: var(--card-bg);
+      color: var(--text);
+      border: 1px solid #444;
+    }
+    
+    .form-control:focus, .form-select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 0.25rem rgba(67, 97, 238, 0.25);
+      background-color: var(--card-bg);
+      color: var(--text);
+    }
+    
+    .content-cell {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .stat-card {
+      text-align: center;
+      padding: 1.5rem;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0.5rem 0;
+    }
+    
+    .stat-label {
+      color: #6c757d;
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .character-preview {
+      background-color: #e9ecef;
+      border-radius: 8px;
+      padding: 1rem;
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      min-height: 100px;
+    }
+    
+    .special-chars {
+      display: flex;
+      gap: 10px;
+      margin-top: 1rem;
+      flex-wrap: wrap;
+    }
+    
+    .char-box {
+      background: var(--card-bg);
+      border: 1px solid #444;
+      border-radius: 6px;
+      padding: 0.5rem 1rem;
+      font-weight: 600;
+    }
+    
+    .alert-position {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 1050;
+      min-width: 350px;
+    }
+    
+    .action-buttons .btn {
+      margin-right: 5px;
+    }
+    
+    .encoding-info {
+      background-color: #e8f4ff;
+      border-left: 4px solid var(--primary);
+      padding: 1rem;
+      border-radius: 0 8px 8px 0;
+      margin: 1rem 0;
+    }
+    
+    .preview-title {
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+    }
+    
+    .preview-content {
+      line-height: 1.6;
+    }
+    
+    .preview-emdash {
+      color: #e74c3c;
+      font-weight: bold;
+    }
+    
+    /* Article Preview Modal Styles */
+    .article-preview-modal .modal-content {
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      color: var(--text);
+    }
+    
+    .article-preview-modal .modal-header {
+      background: linear-gradient(to right, var(--primary), var(--secondary));
+      color: white;
+      border-radius: 12px 12px 0 0;
+      padding: 1.5rem;
+    }
+    
+    .article-preview-modal .modal-title {
+      font-weight: 700;
+    }
+    
+    .article-preview-modal .modal-body {
+      padding: 2rem;
+      max-height: 70vh;
+      overflow-y: auto;
+    }
+    
+    .article-preview-modal .article-meta {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #444;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    
+    .article-preview-modal .article-content {
+      font-size: 1.1rem;
+      line-height: 1.7;
+    }
+    
+    .article-preview-modal .article-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 8px;
+      margin: 1.5rem 0;
+    }
+    
+    .article-preview-modal .article-stats {
+      display: flex;
+      gap: 15px;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #444;
+      flex-wrap: wrap;
+    }
+    
+    .article-preview-modal .stat-badge {
+      background: #f1f4ff;
+      border-radius: 50px;
+      padding: 0.5rem 1rem;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .action-buttons {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .action-buttons .btn {
+      padding: 0.375rem 0.75rem;
+      font-size: 0.875rem;
+    }
+    
+    .mode-toggle {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .mode-toggle-label {
+      color: white;
+      font-weight: 500;
+    }
+    
+    /* Animation styles */
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+      40% {transform: translateY(-20px);}
+      60% {transform: translateY(-10px);}
+    }
+    
+    @keyframes spin {
+      from {transform: rotate(0deg);}
+      to {transform: rotate(360deg);}
+    }
+    
+    @keyframes pulse {
+      0% {transform: scale(1);}
+      50% {transform: scale(1.2);}
+      100% {transform: scale(1);}
+    }
+    
+    .animated-icon {
+      display: inline-block;
+      margin-right: 8px;
+    }
+    
+    .bounce {
+      animation: bounce 1s ease;
+    }
+    
+    .spin {
+      animation: spin 1s linear;
+    }
+    
+    .pulse {
+      animation: pulse 0.5s ease;
+    }
+    
+    /* Theme transition */
+    .theme-transition {
+      transition: background-color 0.5s, color 0.5s;
+    }
+    
+    /* Animation container */
+    .animation-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      pointer-events: none;
+      z-index: 2000;
+    }
+    
+    .emoji-animation {
+      font-size: 5rem;
+      animation: bounce 1s ease, fadeOut 1.5s forwards;
+    }
+    
+    @keyframes fadeOut {
+      0% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-100px); }
+    }
+    
+    .preview-img {
+      max-height: 300px;
+      border-radius: 8px;
+      object-fit: cover;
+      width: 100%;
+    }
+  </style>
 </head>
-<body>
-  <div class="container mt-4">
-    <h2 class="text-center">Admin Panel</h2>
+<body class="theme-transition">
+  <div class="animation-container" id="animationContainer"></div>
+  
+  <div class="header text-center">
+    <div class="container">
+      <h1><i class="bi bi-newspaper me-2"></i>News Content Management</h1>
+      <p class="lead">Admin panel with full UTF-8 character support</p>
+      <div class="d-flex justify-content-center mt-3">
+        <span class="badge bg-success status-badge me-2">
+          <i class="bi bi-check-circle-fill me-1"></i>UTF-8 Encoding Enabled
+        </span>
+        <span class="badge bg-info status-badge">
+          <i class="bi bi-lock-fill me-1"></i>Special Characters Preserved
+        </span>
+      </div>
+      
+      <div class="mode-toggle">
+        <span class="mode-toggle-label">Dark Mode</span>
+        <div class="form-check form-switch">
+          <input class="form-check-input" type="checkbox" id="darkModeToggle">
+          <label class="form-check-label" for="darkModeToggle"></label>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <ul class="nav nav-tabs">
+  <div class="container">
+    <div class="row mb-4">
+      <div class="col-md-3">
+        <div class="card stat-card">
+          <i class="bi bi-journal-text fs-1 text-primary"></i>
+          <div class="stat-number" id="article-count">0</div>
+          <div class="stat-label">Articles</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stat-card">
+          <i class="bi bi-tags fs-1 text-primary"></i>
+          <div class="stat-number" id="category-count">0</div>
+          <div class="stat-label">Categories</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stat-card">
+          <i class="bi bi-eye fs-1 text-primary"></i>
+          <div class="stat-number" id="views-count">0</div>
+          <div class="stat-label">Total Views</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="card stat-card">
+          <i class="bi bi-person fs-1 text-primary"></i>
+          <div class="stat-number" id="authors-count">0</div>
+          <div class="stat-label">Authors</div>
+        </div>
+      </div>
+    </div>
+
+    <ul class="nav nav-tabs mb-3">
       <li class="nav-item">
         <a class="nav-link active" id="categories-tab" href="#">Manage Categories</a>
       </li>
@@ -28,146 +451,409 @@
 
     <!-- Categories Section -->
     <div id="categories-section" class="mt-3">
-      <h4>Add New Category</h4>
-      <input type="number" id="category-id" class="form-control my-2" placeholder="Category ID" />
-      <input type="text" id="category-name" class="form-control my-2" placeholder="Category Name" />
-      <button class="btn btn-primary" id="add-category-btn">Add Category</button>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Add New Category</h4>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="category-id" class="form-label">Category ID</label>
+              <input type="number" id="category-id" class="form-control" placeholder="Enter ID">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="category-name" class="form-label">Category Name</label>
+              <input type="text" id="category-name" class="form-control" placeholder="Enter name">
+            </div>
+          </div>
+          <button class="btn btn-primary" id="add-category-btn">
+            <i class="bi bi-plus-lg me-1"></i>Add Category
+          </button>
+        </div>
+      </div>
 
-      <h4 class="mt-4">Categories List</h4>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="categories-table"></tbody>
-      </table>
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0"><i class="bi bi-list-task me-2"></i>Categories List</h4>
+          <span class="badge bg-primary" id="category-count-badge">0 categories</span>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Name</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="categories-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Articles Section -->
     <div id="articles-section" class="mt-3 d-none">
-      <h4>Add New Article</h4>
-      <input type="number" id="id" class="form-control my-2" placeholder="ID" />
-      <input type="text" id="title" class="form-control my-2" placeholder="Title" />
-      <textarea id="content" class="form-control my-2" placeholder="Content"></textarea>
-      <select id="categoryID" class="form-control my-2"></select>
-      <input type="text" id="image" class="form-control my-2" placeholder="Image URL" />
-      <input type="datetime-local" id="createdAt" class="form-control my-2" />
-      <input type="text" id="author" class="form-control my-2" placeholder="Author" />
-      <button class="btn btn-primary" id="add-article-btn">Add Article</button>
+      <div class="card">
+        <div class="card-header">
+          <h4 class="mb-0"><i class="bi bi-plus-circle me-2"></i>Add New Article</h4>
+        </div>
+        <div class="card-body">
+          <div class="encoding-info">
+            <i class="bi bi-info-circle me-2"></i> 
+            This system preserves all special characters including em dashes (—), 
+            en dashes (–), and other UTF-8 punctuation. Content is stored exactly as entered.
+          </div>
+          
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label for="id" class="form-label">Article ID</label>
+              <input type="number" id="id" class="form-control" placeholder="Enter ID">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="title" class="form-label">Title</label>
+              <input type="text" id="title" class="form-control" placeholder="Enter title">
+            </div>
+            <div class="col-12 mb-3">
+              <label for="content" class="form-label">Content</label>
+              <textarea id="content" class="form-control" placeholder="Enter content" rows="5"></textarea>
+              
+              <div class="character-preview mt-3">
+                <div class="preview-title">Character Validation Preview:</div>
+                <div id="content-preview" class="preview-content">Your content will appear here with all special characters preserved</div>
+              </div>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="categoryID" class="form-label">Category</label>
+              <select id="categoryID" class="form-select"></select>
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="image" class="form-label">Image URL</label>
+              <input type="text" id="image" class="form-control" placeholder="Enter URL">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="createdAt" class="form-label">Created At</label>
+              <input type="datetime-local" id="createdAt" class="form-control">
+            </div>
+            <div class="col-md-6 mb-3">
+              <label for="author" class="form-label">Author</label>
+              <input type="text" id="author" class="form-control" placeholder="Enter author">
+            </div>
+          </div>
+          
+          <div class="special-chars">
+            <div class="char-box">Em dash: <span class="preview-emdash">—</span></div>
+            <div class="char-box">En dash: –</div>
+            <div class="char-box">Ellipsis: …</div>
+            <div class="char-box">Smart quotes: “ ”</div>
+            <div class="char-box">Apostrophe: ’</div>
+          </div>
+          
+          <button class="btn btn-primary mt-3" id="add-article-btn">
+            <i class="bi bi-plus-lg me-1"></i>Add Article
+          </button>
+        </div>
+      </div>
 
-      <h4 class="mt-4">Articles List</h4>
-      <table class="table table-bordered">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Title</th>
-            <th>Content</th>
-            <th>Category Name</th>
-            <th>Category ID</th>
-            <th>Image URL</th>
-            <th>Created At</th>
-            <th>Author</th>
-            <th>Views</th>
-            <th>Actions</th>
-          </tr>
-        </thead>
-        <tbody id="articles-table"></tbody>
-      </table>
+      <div class="card">
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <h4 class="mb-0"><i class="bi bi-newspaper me-2"></i>Articles List</h4>
+          <span class="badge bg-primary" id="article-count-badge">0 articles</span>
+        </div>
+        <div class="card-body">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Title</th>
+                  <th>Content Preview</th>
+                  <th>Category</th>
+                  <th>Created</th>
+                  <th>Views</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="articles-table"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
-  <script>
-    // const API_URL = "http://127.0.0.1:8080";
-    const API_URL = "https://news-backend-88pj.onrender.com";
+  <!-- Article Preview Modal -->
+  <div class="modal fade article-preview-modal" id="articlePreviewModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="preview-title">Article Preview</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="article-meta">
+            <div>
+              <span class="fw-bold">ID:</span> <span id="preview-id">-</span>
+            </div>
+            <div>
+              <span class="fw-bold">Category:</span> <span id="preview-category">-</span>
+            </div>
+            <div>
+              <span class="fw-bold">Author:</span> <span id="preview-author">-</span>
+            </div>
+            <div>
+              <span class="fw-bold">Created:</span> <span id="preview-created">-</span>
+            </div>
+          </div>
+          
+          <div class="text-center mb-4">
+            <img id="preview-image" src="" alt="Article Image" class="preview-img">
+          </div>
+          
+          <div class="article-content" id="preview-content">
+            Loading content...
+          </div>
+          
+          <div class="article-stats">
+            <span class="stat-badge">
+              <i class="bi bi-eye me-1"></i>
+              <span id="preview-views">0</span> views
+            </span>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary" id="edit-from-preview">
+            <i class="bi bi-pencil me-1"></i> Edit Article
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
 
+  <!-- Article Edit Modal -->
+  <div class="modal fade" id="editArticleModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-pencil-square me-2"></i>Edit Article</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="edit-id">
+          <div class="mb-3">
+            <label for="edit-title" class="form-label">Title</label>
+            <input type="text" id="edit-title" class="form-control" placeholder="Title">
+          </div>
+          <div class="mb-3">
+            <label for="edit-content" class="form-label">Content</label>
+            <textarea id="edit-content" class="form-control" placeholder="Content" rows="6"></textarea>
+          </div>
+          <div class="mb-3">
+            <label for="edit-author" class="form-label">Author</label>
+            <input type="text" id="edit-author" class="form-control" placeholder="Author">
+          </div>
+          <div class="mb-3">
+            <label for="edit-image" class="form-label">Image URL</label>
+            <input type="text" id="edit-image" class="form-control" placeholder="Image URL">
+          </div>
+          <div class="mb-3">
+            <label for="edit-createdAt" class="form-label">Created At</label>
+            <input type="datetime-local" id="edit-createdAt" class="form-control">
+          </div>
+          <div class="mb-3">
+            <label for="edit-category" class="form-label">Category ID</label>
+            <input type="number" id="edit-category" class="form-control" placeholder="Category ID">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button class="btn btn-primary" onclick="saveArticleChanges()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Alert Container -->
+  <div class="alert-position"></div>
+
+  <script>
+    // API Configuration
+    const API_URL = "https://news-backend-88pj.onrender.com";
+    let currentArticleViews = 0;
+    let currentArticleId = null;
+
+    // Initialize the application
+    document.addEventListener('DOMContentLoaded', () => {
+      loadCategories();
+      
+      // Set current datetime as default
+      const now = new Date();
+      const localDateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+      document.getElementById("createdAt").value = localDateTime;
+      
+      // Add content preview
+      document.getElementById("content").addEventListener('input', function() {
+        document.getElementById("content-preview").innerHTML = this.value;
+      });
+      
+      // Set up dark mode toggle
+      document.getElementById('darkModeToggle').addEventListener('change', function() {
+        document.body.classList.toggle('dark-mode', this.checked);
+        // Save preference to localStorage
+        localStorage.setItem('darkMode', this.checked);
+      });
+      
+      // Check for saved dark mode preference
+      const darkMode = localStorage.getItem('darkMode') === 'true';
+      document.getElementById('darkModeToggle').checked = darkMode;
+      document.body.classList.toggle('dark-mode', darkMode);
+    });
 
     // Load Categories
     function loadCategories() {
-      axios.get(`${API_URL}/categories`).then(response => {
-        const categorySelect = document.getElementById("categoryID");
-        categorySelect.innerHTML = "<option disabled selected>Select Category</option>";
+      axios.get(`${API_URL}/categories`)
+        .then(response => {
+          const categorySelect = document.getElementById("categoryID");
+          categorySelect.innerHTML = "<option disabled selected>Select Category</option>";
 
-        const categoriesTable = document.getElementById("categories-table");
-        categoriesTable.innerHTML = "";
+          const categoriesTable = document.getElementById("categories-table");
+          categoriesTable.innerHTML = "";
 
-        response.data.forEach(category => {
-          const option = document.createElement("option");
-          option.value = category.id;
-          option.textContent = category.name;
-          categorySelect.appendChild(option);
+          // Update stats
+          document.getElementById("category-count").textContent = response.data.length;
+          document.getElementById("category-count-badge").textContent = 
+            `${response.data.length} ${response.data.length === 1 ? 'category' : 'categories'}`;
 
-          categoriesTable.innerHTML += `
-            <tr>
+          response.data.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category.id;
+            option.textContent = category.name;
+            categorySelect.appendChild(option);
+
+            const row = document.createElement("tr");
+            row.innerHTML = `
               <td>${category.id}</td>
               <td>${category.name}</td>
-              <td>
-                <button class="btn btn-sm btn-primary" onclick="updateCategory(${category.id})">Update</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})">Delete</button>
+              <td class="action-buttons">
+                <button class="btn btn-sm btn-primary" onclick="updateCategory(${category.id})">
+                  <i class="bi bi-pencil"></i> Edit
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteCategory(${category.id})">
+                  <i class="bi bi-trash"></i> Delete
+                </button>
               </td>
-            </tr>`;
-        });
+            `;
+            categoriesTable.appendChild(row);
+          });
 
-        loadArticles(); // Load articles after categories
-      });
+          loadArticles(); // Load articles after categories
+        })
+        .catch(error => {
+          console.error("Error loading categories:", error);
+          showAlert("Failed to load categories. Please check connection.", "danger", "exclamation-triangle");
+        });
     }
 
     // Load Articles
     function loadArticles() {
-      axios.get(`${API_URL}/articles`).then(response => {
-        const articlesTable = document.getElementById("articles-table");
-        articlesTable.innerHTML = "";
+      axios.get(`${API_URL}/articles`)
+        .then(response => {
+          const articlesTable = document.getElementById("articles-table");
+          articlesTable.innerHTML = "";
 
-      /*  response.data.forEach(article => {
-          articlesTable.innerHTML += `
-            <tr>
+          // Update stats
+          document.getElementById("article-count").textContent = response.data.length;
+          document.getElementById("article-count-badge").textContent = 
+            `${response.data.length} ${response.data.length === 1 ? 'article' : 'articles'}`;
+            
+          // Calculate total views and unique authors
+          let totalViews = 0;
+          const authors = new Set();
+          
+          response.data.forEach(article => {
+            totalViews += article.views;
+            authors.add(article.author);
+          });
+          
+          document.getElementById("views-count").textContent = totalViews;
+          document.getElementById("authors-count").textContent = authors.size;
+
+          response.data.forEach(article => {
+            const row = document.createElement("tr");
+            row.setAttribute("data-id", article.id);
+            row.innerHTML = `
               <td>${article.id}</td>
-              <td>${article.title}</td>
-              <td>${article.content}</td>
+              <td>${truncateText(article.title, 25)}</td>
+              <td class="content-cell">${truncateText(article.content, 50)}</td>
               <td>${article.name}</td>
-              <td>${article.category}</td>
-              <td>${article.imageUrl}</td>
-              <td>${new Date(article.createdAt).toLocaleString()}</td>
-              <td>${article.author}</td>
+              <td>${formatDate(article.createdAt)}</td>
               <td>${article.views}</td>
-              <td>
-                <button class="btn btn-sm btn-primary" onclick="updateArticle(${article.id})">Update</button>
-                <button class="btn btn-sm btn-danger" onclick="deleteArticle(${article.id})">Delete</button>
+              <td class="action-buttons">
+                <button class="btn btn-sm btn-primary" onclick="updateArticle(${article.id})">
+                  <i class="bi bi-pencil"></i>
+                </button>
+                <button class="btn btn-sm btn-danger" onclick="deleteArticle(${article.id})">
+                  <i class="bi bi-trash"></i>
+                </button>
               </td>
-            </tr>`;
-        }); */
+            `;
+            
+            // Add click event to entire row for preview
+            row.addEventListener('click', function(e) {
+              // Check if click was on an action button
+              if (e.target.closest('button')) return;
+              
+              // Show preview for this article
+              showArticlePreview(article.id);
+            });
+            
+            articlesTable.appendChild(row);
+          });
+        })
+        .catch(error => {
+          console.error("Error loading articles:", error);
+          showAlert("Failed to load articles. Please check connection.", "danger", "exclamation-triangle");
+        });
+    }
 
-response.data.forEach(article => {
-  const row = document.createElement("tr");
-  row.innerHTML = `
-    <td>${article.id}</td>
-    <td>${article.title}</td>
-    <td class="content-cell"></td>
-    <td>${article.name}</td>
-    <td>${article.category}</td>
-    <td>${article.imageUrl}</td>
-    <td>${new Date(article.createdAt).toLocaleString()}</td>
-    <td>${article.author}</td>
-    <td>${article.views}</td>
-    <td>
-      <button class="btn btn-sm btn-primary" onclick="updateArticle(${article.id})">Update</button>
-      <button class="btn btn-sm btn-danger" onclick="deleteArticle(${article.id})">Delete</button>
-    </td>
-  `;
-
-  // // ✅ Render content as HTML (like <a href...>) so links work!
-  // row.cells[2].innerHTML = article.content;
-    // ✅ Sanitize and insert the content HTML
-  row.querySelector(".content-cell").innerHTML = DOMPurify.sanitize(article.content);
-
-
-  articlesTable.appendChild(row);
-});
-
-        
-      });
+    // Show article preview
+    function showArticlePreview(articleId) {
+      axios.get(`${API_URL}/articles/${articleId}`)
+        .then(response => {
+          const article = response.data;
+          currentArticleId = article.id;
+          
+          // Update preview modal
+          document.getElementById("preview-id").textContent = article.id;
+          document.getElementById("preview-title").textContent = article.title;
+          document.getElementById("preview-category").textContent = article.name;
+          document.getElementById("preview-author").textContent = article.author;
+          document.getElementById("preview-created").textContent = formatDateTime(article.createdAt);
+          document.getElementById("preview-content").innerHTML = article.content;
+          document.getElementById("preview-views").textContent = article.views;
+          
+          // Set image if available
+          const imgElement = document.getElementById("preview-image");
+          if (article.imageUrl) {
+            imgElement.src = article.imageUrl;
+            imgElement.style.display = "block";
+          } else {
+            imgElement.style.display = "none";
+          }
+          
+          // Show the preview modal
+          const previewModal = new bootstrap.Modal(document.getElementById('articlePreviewModal'));
+          previewModal.show();
+        })
+        .catch(error => {
+          console.error("Error fetching article:", error);
+          showAlert("Failed to load article preview.", "danger", "exclamation-triangle");
+        });
     }
 
     // Add Category
@@ -175,203 +861,99 @@ response.data.forEach(article => {
       const id = parseInt(document.getElementById("category-id").value);
       const name = document.getElementById("category-name").value.trim();
 
-      if (!id || !name) return alert("Please fill in both fields.");
+      if (!id || !name) {
+        showAlert("Please fill in both fields.", "warning", "exclamation-triangle");
+        return;
+      }
 
-      axios.get(`${API_URL}/categories`).then(response => {
-        const exists = response.data.some(cat => cat.id === id || cat.name.toLowerCase() === name.toLowerCase());
-        if (exists) return alert("Category with same ID or name already exists.");
+      axios.get(`${API_URL}/categories`)
+        .then(response => {
+          const exists = response.data.some(cat => 
+            cat.id === id || cat.name.toLowerCase() === name.toLowerCase()
+          );
+          
+          if (exists) {
+            showAlert("Category with same ID or name already exists.", "warning", "exclamation-triangle");
+            return;
+          }
 
-        axios.post(`${API_URL}/categories`, { id, name }).then(() => {
-          alert("Category added!");
-          loadCategories();
+          axios.post(`${API_URL}/categories`, { id, name })
+            .then(() => {
+              showAlert("Category added successfully!", "success", "check-circle");
+              showEmojiAnimation("✅");
+              loadCategories();
+              document.getElementById("category-id").value = "";
+              document.getElementById("category-name").value = "";
+            })
+            .catch(error => {
+              console.error("Error adding category:", error);
+              showAlert("Failed to add category. Please try again.", "danger", "exclamation-triangle");
+            });
         });
-      });
     });
 
-    // // Update Category
-    // function updateCategory(id) {
-    //   axios.get(`${API_URL}/categories/${id}`).then(response => {
-    //     const old = response.data;
-    //     const newName = prompt("Update category name:", old.name);
-    //     if (!newName) return;
-
-    //     axios.put(`${API_URL}/categories/${id}`, { id: old.id, name: old.newName }).then(() => {
-    //       alert("Category updated.");
-    //       loadCategories();
-    //     });
-    //   });
-    // }
-
-
-    // updateCategory
-function updateCategory(id) {
-        axios.get(`${API_URL}/categories/${id}`)
+    // Update Category
+    function updateCategory(id) {
+      axios.get(`${API_URL}/categories/${id}`)
         .then(response => {
-        const category = response.data;
-const newCategory = prompt("Enter new category:", category.name);
-const updateData={
-...category, 
-name: newCategory};
-                 axios.put(`${API_URL}/categories/${id}`, updateData)
-                    .then(() => {
-                        alert("Category updated successfully!");
-                        loadCategories();
-                    })
-                    .catch(error => console.error("Error updating category:", error));
-            }
-        )
-        .catch(error => console.error("Error fetching category:", error));
-}
-
+          const category = response.data;
+          const newName = prompt("Enter new category name:", category.name);
+          
+          if (newName === null || newName.trim() === "") return;
+          
+          const updateData = {
+            ...category, 
+            name: newName.trim()
+          };
+          
+          axios.put(`${API_URL}/categories/${id}`, updateData)
+            .then(() => {
+              showAlert("Category updated successfully!", "success", "arrow-repeat");
+              showEmojiAnimation("🔄");
+              loadCategories();
+            })
+            .catch(error => {
+              console.error("Error updating category:", error);
+              showAlert("Failed to update category.", "danger", "exclamation-triangle");
+            });
+        })
+        .catch(error => {
+          console.error("Error fetching category:", error);
+          showAlert("Failed to fetch category details.", "danger", "exclamation-triangle");
+        });
+    }
 
     // Delete Category
     function deleteCategory(id) {
-      if (confirm("Delete this category?")) {
-        axios.delete(`${API_URL}/categories/${id}`).then(() => {
-          loadCategories();
-        });
+      if (confirm("Are you sure you want to delete this category? This action cannot be undone.")) {
+        axios.delete(`${API_URL}/categories/${id}`)
+          .then(() => {
+            showAlert("Category deleted successfully!", "success", "trash");
+            showEmojiAnimation("🗑️");
+            loadCategories();
+          })
+          .catch(error => {
+            console.error("Error deleting category:", error);
+            showAlert("Failed to delete category. It may be in use by articles.", "danger", "exclamation-triangle");
+          });
       }
-    } 
-    
-/*   function cleanText(text) {
-  return text
-    .replace(/[“”«»„‟❝❞]/g, '"')          // Replace various double quotes
-    .replace(/[‘’‚‛❛❜]/g, "'")             // Replace various single quotes
-    .replace(/…/g, "...")                  // Replace ellipsis
-    .replace(/•|‣|◦|∙/g, "*")              // Replace bullets with asterisk
-    .replace(/\u00A0/g, " ")               // Non-breaking space -> regular space
-    .replace(/\u2028|\u2029/g, "\n")       // Line separators -> newline
-    .replace(/\u200B/g, "")                // Zero-width space -> remove
-    .replace(/¢/g, "c")                    // Cent sign
-    .replace(/£/g, "GBP")                  // Pound
-    .replace(/€|₤/g, "EUR")                // Euro
-    .replace(/®/g, "(r)")
-    .replace(/†/g, "+")                    // Dagger
-    .replace(/‡/g, "++")                   // Double dagger
-    .replace(/‰/g, " per mille ")
-    .replace(/•/g, "*")                    // Bullet
-    .replace(/\uFB01/g, "fi")              // fi ligature
-    .replace(/\uFB02/g, "fl")              // fl ligature
-    .replace(/â€”/g, "—") // FIX for garbled em dash
-    .replace(/\uFFFD/g, "")                // Replacement character (�)
-    .replace(/[\u2000-\u200A]/g, " ")      // Various thin spaces → regular space
-    .replace(/[\uFEFF]/g, "")              // Byte Order Mark (BOM) → remove
-    .trim();                               // Final cleanup
-}
-    // .replace(/–/g, "―")                   // Replace en dash with horizontal bar (optional)
+    }
 
-    // .replace(/–|—|―/g, "—")                // Replace en dash, em dash, horizontal bar with -
-        // .replace(/–|—|―/g, "—")                // Replace en dash, em dash, horizontal bar with -
-    // .replace(/â/g, "—")                 // Correct fix for broken em dash
-
-    // .replace(/©/g, "(c)")
-    //     .replace(/™/g, "TM")
-    // .replace(/[\u2010-\u2015]/g, "-")    // Various hyphens (but explicitly not em/en dash now)
-
-    // .replace(/–|―/g, "-")              // Replace en dash, horizontal bar with - (keep em dash)
-
-    // .replace(/[\u2010-\u2015]/g, "-")      // Various hyphens
-
-*/
- /*   function cleanText(text) {
-  return text
-    // Fix common encoding issues (Windows-1252 to UTF-8)
-    .replace(/â/g, "—")                // Fix broken em dash
-    .replace(/â/g, "‘")
-    .replace(/â/g, "’")
-    .replace(/âœ/g, "“")
-    .replace(/â/g, "”")
-    .replace(/â¦/g, "…")
-
-
-        // ✅ Keep proper em/en dashes intact
-    .replace(/\u2013/g, "–") // en dash
-    .replace(/\u2014/g, "—") // em dash
-
-
-    // Replace alternate quote styles
-    .replace(/[“”«»„‟❝❞]/g, '"')
-    .replace(/[‘’‚‛❛❜]/g, "'")
-
-    // Replace formatting characters
-    .replace(/…/g, "...")                 
-    .replace(/–/g, "–")                   // Keep en dash as-is
-    .replace(/―/g, "―")                   // Keep horizontal bar as-is
-    .replace(/\u2014/g, "—")              // Explicitly keep em dash as-is
-    .replace(/•|‣|◦|∙/g, "*")
-
-    // Space and special symbols
-    .replace(/\u00A0/g, " ")
-    .replace(/\u2028|\u2029/g, "\n")
-    .replace(/\u200B/g, "")
-    .replace(/\u2000-\u200A/g, " ")
-    .replace(/\uFEFF/g, "")
-    .replace(/\uFFFD/g, "")
-
-    // Currency and symbols
-    .replace(/¢/g, "c")
-    .replace(/£/g, "GBP")
-    .replace(/€|₤/g, "EUR")
-    .replace(/®/g, "(r)")
-    .replace(/†/g, "+")
-    .replace(/‡/g, "++")
-    .replace(/‰/g, " per mille ")
-    .replace(/\uFB01/g, "fi")
-    .replace(/\uFB02/g, "fl")
-
-    .trim();
-}
-
-*/
-
-
-        function cleanText(text) {
-      return text
-        .replace(/â/g, "—")  // corrupted em dash
-        .replace(/â/g, "–")  // corrupted en dash
-        .replace(/â/g, "“")
-        .replace(/â/g, "”")
-        .replace(/â˜/g, "‘")
-        .replace(/â/g, "’")
-        .replace(/â¦/g, "…")
-        .replace(/[“”«»„‟❝❞]/g, '"')
-        .replace(/[‘’‚‛❛❜]/g, "'")
-        .replace(/\u00A0/g, " ")
-        .replace(/\u2028|\u2029/g, "\n")
-        .replace(/\u200B/g, "")
-        .replace(/¢/g, "c")
-        .replace(/£/g, "GBP")
-        .replace(/€|₤/g, "EUR")
-        .replace(/®/g, "(r)")
-        .replace(/†/g, "+")
-        .replace(/‡/g, "++")
-        .replace(/‰/g, " per mille ")
-        .replace(/•|‣|◦|∙/g, "*")
-        .replace(/\uFB01/g, "fi")
-        .replace(/\uFB02/g, "fl")
-        .replace(/\uFFFD/g, "")
-        .replace(/[\u2000-\u200A]/g, " ")
-        .replace(/[\uFEFF]/g, "")
-        .trim();
-        }
-
-
-
-
-    
     // Add Article
     document.getElementById("add-article-btn").addEventListener("click", () => {
       const id = parseInt(document.getElementById("id").value);
-      const title = cleanText(document.getElementById("title").value.trim());
-      const content = cleanText(document.getElementById("content").value.trim());
+      const title = document.getElementById("title").value.trim();
+      const content = document.getElementById("content").value.trim();
       const categoryID = parseInt(document.getElementById("categoryID").value);
       const imageUrl = document.getElementById("image").value.trim();
-      const createdAt = new Date(document.getElementById("createdAt").value).getTime() || Date.now();
-      const author = cleanText(document.getElementById("author").value.trim());
+      const createdAt = document.getElementById("createdAt").value 
+        ? new Date(document.getElementById("createdAt").value).getTime() 
+        : Date.now();
+      const author = document.getElementById("author").value.trim();
       const name = document.getElementById("categoryID").selectedOptions[0].text;
 
-      if (!title || !content || !author || isNaN(categoryID)) {
-        alert("Please fill in all required fields.");
+      if (!id || !title || !content || !author || isNaN(categoryID)) {
+        showAlert("Please fill in all required fields.", "warning", "exclamation-triangle");
         return;
       }
 
@@ -387,190 +969,217 @@ name: newCategory};
         views: 0
       };
 
-      axios.post(`${API_URL}/articles`, articleData).then(() => {
-        alert("Article added!");
-        loadArticles();
-      });
+      axios.post(`${API_URL}/articles`, articleData)
+        .then(() => {
+          showAlert("Article added successfully!", "success", "plus-circle");
+          showEmojiAnimation("📝");
+          loadArticles();
+          // Clear form
+          document.getElementById("id").value = "";
+          document.getElementById("title").value = "";
+          document.getElementById("content").value = "";
+          document.getElementById("content-preview").textContent = "Your content will appear here with all special characters preserved";
+          document.getElementById("image").value = "";
+          document.getElementById("author").value = "";
+        })
+        .catch(error => {
+          console.error("Error adding article:", error);
+          showAlert("Failed to add article. Please try again.", "danger", "exclamation-triangle");
+        });
     });
 
     // Update Article
-   /** function updateArticle(id){
-      axios.get(`${API_URL}/articles/${id}`).then(res => {
-        const article = res.data;
-        const newTitle = prompt("New Title:", article.title);
-        const newContent = prompt("New Content:", article.content); 
-        const newImageUrl = prompt("New imageUrl:", article.imageUrl);
-        const newContent = prompt("New Content:", article.content);
-
-        const newAuthor = prompt("New Author:", article.author);
-
-        if (!newTitle || !newContent || !newAuthor) return;
-
-        const updated = { ...article, title: newTitle, content: newContent, author: newAuthor };
-        axios.put(`${API_URL}/articles/${id}`, updated).then(() => {
-          alert("Article updated!");
-          loadArticles();
-        });
-      });
-    }**/
-
-    // function updateArticle(id) {
-    // axios.get(`${API_URL}/articles/${id}`)
-    //     .then(response => {
-    //         const article = response.data;
-    //         const newTitle = prompt("Enter new title:", article.title);
-    //         const newContent = prompt("Enter new content:", article.content);
-    //         const newAuthor = prompt("Enter new author:", article.author);
-    //         const newImageUrl = prompt("Enter new image URL:", article.imageUrl);
-    //         const newCreatedAt = prompt("Enter new created at (YYYY-MM-DDTHH:MM):", 
-    //             new Date(article.createdAt).toISOString().slice(0, 16));
-    //         const newCategoryId = prompt("Enter new category ID:", article.category);
-
-    //         if (newTitle && newContent && newAuthor && newCategoryId) {
-    //             const categorySelect = document.getElementById("categoryID");
-    //             const category = Array.from(categorySelect.options)
-    //                 .find(opt => opt.value === newCategoryId);
-
-    //             // const updateData = {
-    //             //     ...article,
-    //             //     title: newTitle,
-    //             //     content: newContent,
-    //             //     author: newAuthor,
-    //             //     imageUrl: newImageUrl,
-    //             //     createdAt: new Date(newCreatedAt).getTime(),
-    //             //     category: parseInt(newCategoryId),
-    //             //     name: category ? category.text : article.name
-    //             // };
-
-//               const updateData = {
-//                    ...article,
-//                      title: cleanText(newTitle),
-//                      content: cleanText(newContent),
-//                      author: cleanText(newAuthor),
-//                     imageUrl: cleanText(newImageUrl || ""), // optional
-//                     createdAt: new Date(newCreatedAt).getTime(),
-//                   category: parseInt(newCategoryId),
-//                   name: cleanText(category ? category.text : article.name)
-//                 };
-
-
-//                 axios.put(`${API_URL}/articles/${id}`, updateData)
-//                     .then(() => {
-//                         alert("Article updated successfully!");
-//                         loadArticles();
-//                     })
-//                     .catch(error => console.error("Error updating article:", error));
-//             }
-//         })
-//         .catch(error => console.error("Error fetching article:", error));
-// }
-
-
-let currentArticleViews = 0;
-
-
     function updateArticle(id) {
-  axios.get(`${API_URL}/articles/${id}`).then(response => {
-    const article = response.data;
-         currentArticleViews = article.views;
+      axios.get(`${API_URL}/articles/${id}`)
+        .then(response => {
+          const article = response.data;
+          currentArticleViews = article.views;
 
-    document.getElementById("edit-id").value = article.id;
-    document.getElementById("edit-title").value = article.title;
-    document.getElementById("edit-content").value = article.content;
-    document.getElementById("edit-author").value = article.author;
-    document.getElementById("edit-image").value = article.imageUrl;
-    document.getElementById("edit-createdAt").value = new Date(article.createdAt).toISOString().slice(0, 16);
-    document.getElementById("edit-category").value = article.category;
+          document.getElementById("edit-id").value = article.id;
+          document.getElementById("edit-title").value = article.title;
+          document.getElementById("edit-content").value = article.content;
+          document.getElementById("edit-author").value = article.author;
+          document.getElementById("edit-image").value = article.imageUrl;
+          document.getElementById("edit-createdAt").value = formatDateForInput(article.createdAt);
+          document.getElementById("edit-category").value = article.category;
 
-    const modal = new bootstrap.Modal(document.getElementById("editArticleModal"));
-    modal.show();
-  });
-}
-function saveArticleChanges() {
-  const id = parseInt(document.getElementById("edit-id").value);
-  const title = cleanText(document.getElementById("edit-title").value.trim());
-  const content = cleanText(document.getElementById("edit-content").value.trim());
-  const author = cleanText(document.getElementById("edit-author").value.trim());
-  const imageUrl = document.getElementById("edit-image").value.trim();
-  const createdAt = new Date(document.getElementById("edit-createdAt").value).getTime();
-  const category = parseInt(document.getElementById("edit-category").value);
-  const categoryName = Array.from(document.getElementById("categoryID").options)
-    .find(opt => parseInt(opt.value) === category)?.text || "";
+          const modal = new bootstrap.Modal(document.getElementById("editArticleModal"));
+          modal.show();
+        })
+        .catch(error => {
+          console.error("Error fetching article:", error);
+          showAlert("Failed to load article details.", "danger", "exclamation-triangle");
+        });
+    }
 
-  const updateData = {
-    id, title, content, author, imageUrl, createdAt,
-    category,
-    name: cleanText(categoryName),
-             views: currentArticleViews 
+    // Save Article Changes
+    function saveArticleChanges() {
+      const id = parseInt(document.getElementById("edit-id").value);
+      const title = document.getElementById("edit-title").value.trim();
+      const content = document.getElementById("edit-content").value.trim();
+      const author = document.getElementById("edit-author").value.trim();
+      const imageUrl = document.getElementById("edit-image").value.trim();
+      const createdAt = new Date(document.getElementById("edit-createdAt").value).getTime();
+      const category = parseInt(document.getElementById("edit-category").value);
+      
+      // Get category name
+      const categorySelect = document.getElementById("categoryID");
+      const categoryOption = Array.from(categorySelect.options)
+        .find(opt => parseInt(opt.value) === category);
+      const categoryName = categoryOption ? categoryOption.text : "";
 
-  
-  };
+      if (!title || !content || !author || isNaN(category)) {
+        showAlert("Please fill in all required fields.", "warning", "exclamation-triangle");
+        return;
+      }
 
-  axios.put(`${API_URL}/articles/${id}`, updateData).then(() => {
-    alert("Article updated!");
-    loadArticles();
-    bootstrap.Modal.getInstance(document.getElementById("editArticleModal")).hide();
-  }).catch(err => {
-    console.error("Update failed:", err);
-    alert("Failed to update article.");
-  });
-}
+      const updateData = {
+        id, 
+        title, 
+        content, 
+        author, 
+        imageUrl, 
+        createdAt,
+        category,
+        name: categoryName,
+        views: currentArticleViews
+      };
 
+      axios.put(`${API_URL}/articles/${id}`, updateData)
+        .then(() => {
+          showAlert("Article updated successfully!", "success", "check2-circle");
+          showEmojiAnimation("✨");
+          loadArticles();
+          bootstrap.Modal.getInstance(document.getElementById("editArticleModal")).hide();
+        })
+        .catch(error => {
+          console.error("Update failed:", error);
+          showAlert("Failed to update article. Please try again.", "danger", "exclamation-triangle");
+        });
+    }
 
     // Delete Article
     function deleteArticle(id) {
-      if (confirm("Delete this article?")) {
-        axios.delete(`${API_URL}/articles/${id}`).then(() => {
-          loadArticles();
-        });
+      if (confirm("Are you sure you want to delete this article? This action cannot be undone.")) {
+        axios.delete(`${API_URL}/articles/${id}`)
+          .then(() => {
+            showAlert("Article deleted successfully!", "success", "trash");
+            showEmojiAnimation("💥");
+            loadArticles();
+          })
+          .catch(error => {
+            console.error("Error deleting article:", error);
+            showAlert("Failed to delete article.", "danger", "exclamation-triangle");
+          });
       }
+    }
+
+    // Helper Functions
+    function formatDate(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleDateString();
+    }
+    
+    function formatDateTime(timestamp) {
+      const date = new Date(timestamp);
+      return date.toLocaleString();
+    }
+    
+    function formatDateForInput(timestamp) {
+      const date = new Date(timestamp);
+      return date.toISOString().slice(0, 16);
+    }
+    
+    function truncateText(text, maxLength) {
+      if (!text) return "";
+      if (text.length <= maxLength) return text;
+      return text.substring(0, maxLength) + '...';
+    }
+    
+    function showAlert(message, type, icon) {
+      const alertContainer = document.querySelector('.alert-position');
+      const alert = document.createElement('div');
+      alert.className = `alert alert-${type} alert-dismissible fade show`;
+      alert.role = "alert";
+      
+      let iconHtml = '';
+      switch(icon) {
+        case 'check-circle':
+          iconHtml = '<i class="bi bi-check-circle-fill me-2 animated bounce"></i>';
+          break;
+        case 'check2-circle':
+          iconHtml = '<i class="bi bi-check2-circle me-2 animated bounce"></i>';
+          break;
+        case 'trash':
+          iconHtml = '<i class="bi bi-trash-fill me-2 animated shake"></i>';
+          break;
+        case 'exclamation-triangle':
+          iconHtml = '<i class="bi bi-exclamation-triangle-fill me-2 animated pulse"></i>';
+          break;
+        case 'arrow-repeat':
+          iconHtml = '<i class="bi bi-arrow-repeat me-2 animated spin"></i>';
+          break;
+        case 'plus-circle':
+          iconHtml = '<i class="bi bi-plus-circle-fill me-2 animated bounce"></i>';
+          break;
+        default:
+          iconHtml = '<i class="bi bi-info-circle-fill me-2"></i>';
+      }
+      
+      alert.innerHTML = `
+        ${iconHtml}
+        ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+      `;
+      
+      alertContainer.appendChild(alert);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => {
+        if (alert.parentNode) {
+          alert.classList.remove('show');
+          setTimeout(() => alert.parentNode.removeChild(alert), 150);
+        }
+      }, 5000);
+    }
+
+    function showEmojiAnimation(emoji) {
+      const container = document.getElementById('animationContainer');
+      const animation = document.createElement('div');
+      animation.className = 'emoji-animation';
+      animation.textContent = emoji;
+      container.appendChild(animation);
+      
+      setTimeout(() => {
+        animation.remove();
+      }, 1500);
     }
 
     // Tab switching
     document.getElementById("articles-tab").addEventListener("click", () => {
       document.getElementById("articles-section").classList.remove("d-none");
       document.getElementById("categories-section").classList.add("d-none");
+      document.getElementById("categories-tab").classList.remove("active");
+      document.getElementById("articles-tab").classList.add("active");
     });
 
     document.getElementById("categories-tab").addEventListener("click", () => {
       document.getElementById("categories-section").classList.remove("d-none");
       document.getElementById("articles-section").classList.add("d-none");
+      document.getElementById("articles-tab").classList.remove("active");
+      document.getElementById("categories-tab").classList.add("active");
     });
-
-    // Initial Load
-    window.onload = () => {
-      loadCategories();
-    };
+    
+    // Edit button in preview modal
+    document.getElementById("edit-from-preview").addEventListener("click", function() {
+      // Close preview modal
+      bootstrap.Modal.getInstance(document.getElementById('articlePreviewModal')).hide();
+      
+      // Open edit modal for the current article
+      if (currentArticleId) {
+        updateArticle(currentArticleId);
+      }
+    });
   </script>
-
-
-
-
-  <!-- Article Edit Modal -->
-<div class="modal fade" id="editArticleModal" tabindex="-1" aria-hidden="true">
-  <div class="modal-dialog modal-lg">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title">Edit Article</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <input type="hidden" id="edit-id" />
-        <input type="text" id="edit-title" class="form-control my-2" placeholder="Title" />
-<!--        <textarea id="edit-content" class="form-control my-2" placeholder="Content" rows="6"></textarea> -->
-        <textarea id="edit-content" class="form-control my-2" placeholder="Content" rows="6" style="resize: vertical;"></textarea>
-
-        <input type="text" id="edit-author" class="form-control my-2" placeholder="Author" /> 
-        <input type="text" id="edit-image" class="form-control my-2" placeholder="Image URL" />
-        <input type="datetime-local" id="edit-createdAt" class="form-control my-2" />
-        <input type="number" id="edit-category" class="form-control my-2" placeholder="Category ID" />
-      </div>
-      <div class="modal-footer">
-        <button class="btn btn-primary" onclick="saveArticleChanges()">Save Changes</button>
-      </div>
-    </div>
-  </div>
-</div>
-
 </body>
 </html>
