@@ -365,7 +365,74 @@ get("/ping") {
 
 
 
-                        get("/trending") {
+//             get("/trending")
+//             {
+//                 val now = System.currentTimeMillis()
+// //                val sevenDaysAgo = now - (5L * 60 * 1000) // 5 minutes
+//                 val sevenDaysAgo = now - (7L * 24 * 60 * 60 * 1000)
+
+//                 val trendingArticles = transaction {
+
+//                     // Step 2: Fetch recent articles (within 7 days)
+//                     val recentArticles = Articles
+//                         .select { Articles.createdAt greaterEq sevenDaysAgo }
+//                         .orderBy(
+//                             Articles.createdAt to SortOrder.DESC,
+//                             Articles.views to SortOrder.DESC
+//                         )
+//                         .limit(10)
+//                         .map {
+//                             Article(
+//                                 id = it[Articles.id],
+//                                 title = it[Articles.title],
+//                                 content = it[Articles.content],
+//                                 name = it[Articles.name],
+//                                 category = it[Articles.category].value,
+//                                 imageUrl = it[Articles.imageUrl],
+//                                 createdAt = it[Articles.createdAt],
+//                                 author = it[Articles.author],
+//                                 views = it[Articles.views]
+//                             )
+//                         }
+
+//                     val remainingCount = 10 - recentArticles.size
+
+            //         // Step 3: Fill with older articles if needed
+            //         val additionalArticles = if (remainingCount > 0) {
+            //             val recentIds = recentArticles.mapNotNull { it.id }
+            //             Articles
+            //                 .select {
+            //                     (Articles.createdAt less sevenDaysAgo) and
+            //                             (Articles.id notInList recentIds)
+            //                 }
+            //                 .orderBy(
+            //                     Articles.views to SortOrder.DESC,
+            //                     Articles.createdAt to SortOrder.DESC
+            //                 )
+            //                 .limit(remainingCount)
+            //                 .map {
+            //                     Article(
+            //                         id = it[Articles.id],
+            //                         title = it[Articles.title],
+            //                         content = it[Articles.content],
+            //                         name = it[Articles.name],
+            //                         category = it[Articles.category].value,
+            //                         imageUrl = it[Articles.imageUrl],
+            //                         createdAt = it[Articles.createdAt],
+            //                         author = it[Articles.author],
+            //                         views = it[Articles.views]
+            //                     )
+            //                 }
+            //         } else emptyList()
+
+            //         recentArticles + additionalArticles
+            //     }
+
+            //     call.respond(trendingArticles)
+
+            // }
+
+    get("/trending") {
                 val now = System.currentTimeMillis()
 //                val sevenDaysAgo = now - (5L * 60 * 1000) // 5 minutes
                 val sevenDaysAgo = now - (7L * 24 * 60 * 60 * 1000)
@@ -373,25 +440,28 @@ get("/ping") {
                 val trendingArticles = transaction {
 
                     // Step 2: Fetch recent articles (within 7 days)
-                    val recentArticles = Articles
-                        .select { Articles.createdAt greaterEq sevenDaysAgo }
+                    val recentArticles =  com.example.ApplicationKt.Articles
+
+                        .select { com.example.ApplicationKt.Articles.createdAt greaterEq sevenDaysAgo }
                         .orderBy(
-                            Articles.createdAt to SortOrder.DESC,
-                            Articles.views to SortOrder.DESC
+                            com.example.ApplicationKt.Articles.createdAt to SortOrder.DESC,
+                            com.example.ApplicationKt.Articles.views to SortOrder.DESC
                         )
                         .limit(10)
                         .map {
-                            Article(
-                                id = it[Articles.id],
-                                title = it[Articles.title],
-                                content = it[Articles.content],
-                                name = it[Articles.name],
-                                category = it[Articles.category].value,
-                                imageUrl = it[Articles.imageUrl],
-                                createdAt = it[Articles.createdAt],
-                                author = it[Articles.author],
-                                views = it[Articles.views]
+                            com.example.Article(
+                                it[com.example.ApplicationKt.Articles.id],
+                                it[com.example.ApplicationKt.Articles.title],
+                                it[com.example.ApplicationKt.Articles.content],
+                                it[com.example.ApplicationKt.Articles.name],
+                                it[com.example.ApplicationKt.Articles.category].value,
+                                it[com.example.ApplicationKt.Articles.imageUrl],
+                                it[com.example.ApplicationKt.Articles.createdAt],
+                                it[com.example.ApplicationKt.Articles.author],
+                                it[com.example.ApplicationKt.Articles.views],
                             )
+
+
                         }
 
                     val remainingCount = 10 - recentArticles.size
@@ -399,14 +469,14 @@ get("/ping") {
                     // Step 3: Fill with older articles if needed
                     val additionalArticles = if (remainingCount > 0) {
                         val recentIds = recentArticles.mapNotNull { it.id }
-                        Articles
+                        com.example.ApplicationKt.Articles
                             .select {
-                                (Articles.createdAt less sevenDaysAgo) and
-                                        (Articles.id notInList recentIds)
+                                (                    com.example.ApplicationKt.Articles.createdAt less sevenDaysAgo) and
+                                        (            com.example.ApplicationKt.Articles.id notInList recentIds)
                             }
                             .orderBy(
-                                Articles.views to SortOrder.DESC,
-                                Articles.createdAt to SortOrder.DESC
+                                com.example.ApplicationKt.Articles.views to SortOrder.DESC,
+                        com.example.ApplicationKt.Articles.createdAt to SortOrder.DESC
                             )
                             .limit(remainingCount)
                             .map {
@@ -430,6 +500,7 @@ get("/ping") {
                 call.respond(trendingArticles)
 
             }
+
 
         }
 
