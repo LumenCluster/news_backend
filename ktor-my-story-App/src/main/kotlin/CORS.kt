@@ -10,7 +10,6 @@ fun Application.configureCORS() {
         //CORS access the admin panel to make changes in backend it is use for communication
         // Allow requests from any origin also you can add ("url port")
         // for security to only specific url
-        // anyHost()
         allowHost("news-backend-88pj.onrender.com", schemes = listOf("https"))
         allowHost("news-frontend-xoxz.onrender.com", schemes = listOf("https"))
         allowMethod(HttpMethod.Get)
@@ -18,9 +17,9 @@ fun Application.configureCORS() {
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowHeader(HttpHeaders.ContentType)
-//        allowHeader(HttpHeaders.Authorization) // Allow auth headers if needed
-//        allowCredentials = false // If you're using authentication like JWT
+
     }
 }
+
 
 
