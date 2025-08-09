@@ -29,7 +29,7 @@ repositories {
 //}
 
 dependencies {
-    val exposed_version = "0.45.0" #"0.41.1"
+    val exposed_version = "0.45.0" //"0.41.1"
 
     val hikaricp_version="4.0.3"
     val postgres_version="42.2.75"
