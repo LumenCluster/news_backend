@@ -9,6 +9,8 @@ fun Application.configureCORS() {
         // Allow requests from any origin also you can add ("url port")
         // for security to only specific url
         // allowHost("news-backend-88pj.onrender.com", schemes = listOf("https"))
+        anyHost()
+        // Only allow the admin dashboard domain
         allowHost("news-frontend-xoxz.onrender.com", schemes = listOf("https"))
         
         allowMethod(HttpMethod.Get)
@@ -18,6 +20,7 @@ fun Application.configureCORS() {
         allowHeader(HttpHeaders.ContentType)
     }
 }
+
 
 
 
