@@ -1,9 +1,7 @@
 package com.example
 import io.ktor.server.application.*
-import io.ktor.server.application.*
 import io.ktor.http.*
 import io.ktor.server.plugins.cors.routing.*
-import io.netty.handler.codec.http.cors.CorsConfigBuilder
 
 fun Application.configureCORS() {
     install(CORS) {
@@ -17,9 +15,9 @@ fun Application.configureCORS() {
         allowMethod(HttpMethod.Put)
         allowMethod(HttpMethod.Delete)
         allowHeader(HttpHeaders.ContentType)
-
     }
 }
+
 
 
 
