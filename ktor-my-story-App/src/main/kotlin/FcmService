@@ -1,0 +1,81 @@
+package com.example.notifications
+
+import com.example.ApplicationKt.Notifications
+import io.ktor.http.*
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import com.example.Notification  // <- your data class, not table object
+import io.ktor.http.*
+import kotlinx.coroutines.launch
+
+
+
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+
+import io.ktor.client.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.request.*
+import io.ktor.http.*
+import kotlinx.coroutines.*
+import kotlin.math.pow
+
+object FcmService {
+
+    private const val fcmServerKey = "YOUR_FIREBASE_SERVER_KEY" // <--- Replace
+    private val client = HttpClient(CIO) // Reuse HttpClient
+    private val scope = CoroutineScope(Dispatchers.IO)
+
+    // Max retry attempts
+    private const val MAX_RETRIES = 3
+    private const val BASE_DELAY_MS = 1000L // 1 second
+
+    fun send(notification: Notification) {
+        scope.launch {
+            sendWithRetries(notification)
+        }
+    }
+
+    private suspend fun sendWithRetries(notification: Notification) {
+        repeat(MAX_RETRIES) { attempt ->
+            try {
+                sendFcmNotification(notification)
+                println("✅ FCM sent successfully for articleId=${notification.id}")
+                return  // Exit on success
+            } catch (e: Exception) {
+                val delayTime = BASE_DELAY_MS * 2.0.pow(attempt.toDouble()).toLong()
+                println("⚠️ FCM attempt ${attempt + 1} failed: ${e.message}. Retrying in ${delayTime}ms...")
+                delay(delayTime)
+            }
+        }
+        println("❌ FCM failed after $MAX_RETRIES attempts for articleId=${notification.id}")
+    }
+
+    private suspend fun sendFcmNotification(notification: Notification) {
+        val payload = """
+            {
+                "to": "/topics/all",
+                "notification": {
+                    "title": "${notification.title}",
+                    "body": "New article: ${notification.title}"
+                },
+                "data": {
+                    "articleId": "${notification.id}"
+                }
+            }
+        """.trimIndent()
+
+        client.post("https://fcm.googleapis.com/fcm/send") {
+            headers {
+                append("Authorization", "key=$fcmServerKey")
+                append("Content-Type", "application/json")
+            }
+            setBody(payload)
+        }
+    }
+}
