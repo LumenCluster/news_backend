@@ -13,6 +13,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
+import com.example.notifications.FcmService
 
 fun Application.configureRouting() {
     routing {
@@ -276,11 +277,46 @@ get("/ping") {
             //     call.respond(HttpStatusCode.Created, "Article added")
             // }
 
-                        post {
-                val article = call.receive<Article>()
+                //         post {
+                // val article = call.receive<Article>()
 
-                   transaction {
-                   Articles.insert{
+                //    transaction {
+                //    Articles.insert{
+                //         it[title] = article.title
+                //         it[content] = article.content
+                //         it[name] = article.name
+                //         it[category] = article.category
+                //         it[imageUrl] = article.imageUrl ?: ""
+                //         it[createdAt] = System.currentTimeMillis()
+                //         it[author] = article.author
+                //         it[views] = article.views
+                //     }
+                // }
+
+                // transaction {
+                //     Notifications.insert {
+                //         it[title] = article.title
+                //         it[name] = article.name
+                //         it[imageUrl] = article.imageUrl ?: ""
+                //         it[author] = article.author
+                //         it[isRead] = false
+                //         it[createdAt] = System.currentTimeMillis()
+                //         // it[views] = article.views
+
+                //     }
+                // }
+
+            //     call.respond(HttpStatusCode.Created, "New Article and Notification added")
+            // }
+
+            post {
+                val article = call.receive<Article>()
+                var generatedArticleId: Int? = null
+
+                transaction {
+                    println("Inserting article: $article")
+                    // Insert article and get ResultRow
+                    val resultRow = Articles.insert {
                         it[title] = article.title
                         it[content] = article.content
                         it[name] = article.name
@@ -290,24 +326,44 @@ get("/ping") {
                         it[author] = article.author
                         it[views] = article.views
                     }
+
+                    // Get the generated ID from the ResultRow
+                    println("Inserted article ID: ${resultRow[Articles.id]}")
+                    generatedArticleId = resultRow[Articles.id]
+
+                    println("Inserted Article ID: $generatedArticleId") // for debugging
                 }
 
-                transaction {
-                    Notifications.insert {
-                        it[title] = article.title
-                        it[name] = article.name
-                        it[imageUrl] = article.imageUrl ?: ""
-                        it[author] = article.author
-                        it[isRead] = false
-                        it[createdAt] = System.currentTimeMillis()
-                        // it[views] = article.views
-
+                // Insert notification if ID is not null
+                generatedArticleId?.let { articleId ->
+                    transaction {
+                        Notifications.insert {
+                            it[id] = articleId
+                            it[title] = article.title
+                            it[name] = article.name
+                            it[imageUrl] = article.imageUrl ?: ""
+                            it[author] = article.author
+                            it[isRead] = false
+                            it[createdAt] = System.currentTimeMillis()
+                        }
                     }
+
+                    val notification = Notification(
+                        id = articleId,
+                        title = article.title,
+                        name = article.name,
+                        imageUrl = article.imageUrl,
+                        author = article.author,
+                        isRead = false,
+                        createdAt = System.currentTimeMillis(),
+                        views = article.views
+                    )
+
+                    FcmService.send(notification)
                 }
 
-                call.respond(HttpStatusCode.Created, "New Article and Notification added")
+                call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
             }
-
 
 
 
