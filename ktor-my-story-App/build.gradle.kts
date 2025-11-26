@@ -56,6 +56,7 @@ dependencies {
     implementation("io.ktor:ktor-client-cio:3.1.3")
     implementation("io.ktor:ktor-client-content-negotiation:3.1.3")
     implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.3")
+    implementation("com.google.firebase:firebase-admin:9.2.0") // Use latest version if available
 
 
 
