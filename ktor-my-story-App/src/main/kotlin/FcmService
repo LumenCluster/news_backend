@@ -1,81 +1,54 @@
 package com.example.notifications
 
-import com.example.ApplicationKt.Notifications
-import io.ktor.http.*
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import com.example.Notification  // <- your data class, not table object
-import io.ktor.http.*
-import kotlinx.coroutines.launch
+import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.messaging.Message
 
+class FcmService {
 
+    /**
+     * Send a notification to a topic (e.g., "all")
+     */
+    fun sendToTopic(
+        topic: String,
+        title: String,
+        body: String,
+        data: Map<String, String>? = null
+    ) {
+        try {
+            val messageBuilder = Message.builder()
+                .setTopic(topic)
+                .setNotification(com.google.firebase.messaging.Notification.builder().setTitle(title).setBody(body).build())
 
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+            data?.let { messageBuilder.putAllData(it) }
 
-import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-import io.ktor.client.request.*
-import io.ktor.http.*
-import kotlinx.coroutines.*
-import kotlin.math.pow
-
-object FcmService {
-
-    private const val fcmServerKey = "YOUR_FIREBASE_SERVER_KEY" // <--- Replace
-    private val client = HttpClient(CIO) // Reuse HttpClient
-    private val scope = CoroutineScope(Dispatchers.IO)
-
-    // Max retry attempts
-    private const val MAX_RETRIES = 3
-    private const val BASE_DELAY_MS = 1000L // 1 second
-
-    fun send(notification: Notification) {
-        scope.launch {
-            sendWithRetries(notification)
+            val response = FirebaseMessaging.getInstance().send(messageBuilder.build())
+            println("📬 FCM sent successfully: $response")
+        } catch (e: Exception) {
+            println("❌ FCM failed: ${e.message}")
         }
     }
 
-    private suspend fun sendWithRetries(notification: Notification) {
-        repeat(MAX_RETRIES) { attempt ->
-            try {
-                sendFcmNotification(notification)
-                println("✅ FCM sent successfully for articleId=${notification.id}")
-                return  // Exit on success
-            } catch (e: Exception) {
-                val delayTime = BASE_DELAY_MS * 2.0.pow(attempt.toDouble()).toLong()
-                println("⚠️ FCM attempt ${attempt + 1} failed: ${e.message}. Retrying in ${delayTime}ms...")
-                delay(delayTime)
-            }
-        }
-        println("❌ FCM failed after $MAX_RETRIES attempts for articleId=${notification.id}")
-    }
+    /**
+     * Send a notification to a specific device using token
+     */
+    fun sendToToken(
+        token: String,
+        title: String,
+        body: String,
+        data: Map<String, String>? = null
+    ) {
+        try {
+            val messageBuilder = Message.builder()
+                .setToken(token)
+                .setNotification(com.google.firebase.messaging.Notification.builder().setTitle(title).setBody(body).build())
 
-    private suspend fun sendFcmNotification(notification: Notification) {
-        val payload = """
-            {
-                "to": "/topics/all",
-                "notification": {
-                    "title": "${notification.title}",
-                    "body": "New article: ${notification.title}"
-                },
-                "data": {
-                    "articleId": "${notification.id}"
-                }
-            }
-        """.trimIndent()
+            data?.let { messageBuilder.putAllData(it) }
 
-        client.post("https://fcm.googleapis.com/fcm/send") {
-            headers {
-                append("Authorization", "key=$fcmServerKey")
-                append("Content-Type", "application/json")
-            }
-            setBody(payload)
+            val response = FirebaseMessaging.getInstance().send(messageBuilder.build())
+            println("📬 FCM sent to token successfully: $response")
+        } catch (e: Exception) {
+            println("❌ FCM to token failed: ${e.message}")
         }
     }
 }
+
