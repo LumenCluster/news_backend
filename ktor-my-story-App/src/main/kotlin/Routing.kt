@@ -309,13 +309,68 @@ get("/ping") {
             //     call.respond(HttpStatusCode.Created, "New Article and Notification added")
             // }
 
+            // post {
+            //     val article = call.receive<Article>()
+            //     var generatedArticleId: Int? = null
+
+            //     transaction {
+            //         println("Inserting article: $article")
+            //         // Insert article and get ResultRow
+            //         val resultRow = Articles.insert {
+            //             it[title] = article.title
+            //             it[content] = article.content
+            //             it[name] = article.name
+            //             it[category] = article.category
+            //             it[imageUrl] = article.imageUrl ?: ""
+            //             it[createdAt] = System.currentTimeMillis()
+            //             it[author] = article.author
+            //             it[views] = article.views
+            //         }
+
+            //         // Get the generated ID from the ResultRow
+            //         println("Inserted article ID: ${resultRow[Articles.id]}")
+            //         generatedArticleId = resultRow[Articles.id]
+
+            //         println("Inserted Article ID: $generatedArticleId") // for debugging
+            //     }
+
+            //     // Insert notification if ID is not null
+            //     generatedArticleId?.let { articleId ->
+            //         transaction {
+            //             Notifications.insert {
+            //                 it[id] = articleId
+            //                 it[title] = article.title
+            //                 it[name] = article.name
+            //                 it[imageUrl] = article.imageUrl ?: ""
+            //                 it[author] = article.author
+            //                 it[isRead] = false
+            //                 it[createdAt] = System.currentTimeMillis()
+            //             }
+            //         }
+
+            //         val notification = Notification(
+            //             id = articleId,
+            //             title = article.title,
+            //             name = article.name,
+            //             imageUrl = article.imageUrl,
+            //             author = article.author,
+            //             isRead = false,
+            //             createdAt = System.currentTimeMillis(),
+            //             views = article.views
+            //         )
+
+            //         FcmService.send(notification)
+            //     }
+
+            //     call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
+            // }
+
+
             post {
                 val article = call.receive<Article>()
                 var generatedArticleId: Int? = null
 
                 transaction {
-                    println("Inserting article: $article")
-                    // Insert article and get ResultRow
                     val resultRow = Articles.insert {
                         it[title] = article.title
                         it[content] = article.content
@@ -326,15 +381,9 @@ get("/ping") {
                         it[author] = article.author
                         it[views] = article.views
                     }
-
-                    // Get the generated ID from the ResultRow
-                    println("Inserted article ID: ${resultRow[Articles.id]}")
                     generatedArticleId = resultRow[Articles.id]
-
-                    println("Inserted Article ID: $generatedArticleId") // for debugging
                 }
 
-                // Insert notification if ID is not null
                 generatedArticleId?.let { articleId ->
                     transaction {
                         Notifications.insert {
@@ -348,24 +397,22 @@ get("/ping") {
                         }
                     }
 
-                    val notification = Notification(
-                        id = articleId,
-                        title = article.title,
-                        name = article.name,
-                        imageUrl = article.imageUrl,
-                        author = article.author,
-                        isRead = false,
-                        createdAt = System.currentTimeMillis(),
-                        views = article.views
+                    //  Modern FCM call
+                    val fcmService = FcmService()
+                    fcmService.sendToTopic(
+                        topic = "all",
+                        title = "📰 New Article Added",
+                        body = article.title,
+                        data = mapOf(
+                            "articleId" to articleId.toString(),
+                            "name" to article.name,
+                            "author" to article.author
+                        )
                     )
-
-                    FcmService.send(notification)
                 }
 
                 call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
             }
-
-
 
 
             //  Fetch latest articles
