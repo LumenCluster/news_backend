@@ -4,6 +4,10 @@ import com.example.ApplicationKt.DatabaseFactory
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.firebase.FirebaseApp
+import com.google.firebase.FirebaseOptions
+import java.io.FileInputStream
 
 fun main() {
     embeddedServer(Netty, port = System.getenv("PORT")?.toInt() ?: 8080, host = "0.0.0.0",
@@ -15,6 +19,22 @@ fun main() {
 
 
 fun Application.module() {
+
+    // Initialize Firebase only once
+    if (FirebaseApp.getApps().isEmpty()) {
+        val serviceAccount = FileInputStream("src/main/resources/serviceAccountKey.json")
+
+        val options = FirebaseOptions.builder()
+            .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+            .build()
+
+        FirebaseApp.initializeApp(options)
+        println("🔥 Firebase Initialized Successfully")
+    }
+
+
+
+    
     DatabaseFactory.init()
     configureSerialization()
     configureCORS()
