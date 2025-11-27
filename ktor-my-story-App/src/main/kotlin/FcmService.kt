@@ -1,9 +1,16 @@
 package com.example
 
-import com.google.firebase.messaging.AndroidConfig
-import com.google.firebase.messaging.AndroidNotification
+// import com.google.firebase.messaging.AndroidConfig
+// import com.google.firebase.messaging.AndroidNotification
+// import com.google.firebase.messaging.FirebaseMessaging
+// import com.google.firebase.messaging.Message
+// import com.google.firebase.messaging.Notification
+
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.Message
+
+import com.google.firebase.messaging.AndroidConfig
+import com.google.firebase.messaging.AndroidNotification
 import com.google.firebase.messaging.Notification
 
 class FcmService {
@@ -15,49 +22,60 @@ class FcmService {
         data: Map<String, String>? = null
     ) {
         try {
-            val messageBuilder = Message.builder()
+            val message = Message.builder()
                 .setTopic(topic)
-                .setNotification(Notification.builder().setTitle(title).setBody(body).build())
-                .putAllData(data ?: emptyMap())
                 .setAndroidConfig(
                     AndroidConfig.builder()
                         .setPriority(AndroidConfig.Priority.HIGH)
                         .setNotification(
                             AndroidNotification.builder()
-                                .setChannelId("high_importance_channel") // IMPORTANT!
+                                .setTitle(title) // REQUIRED for killed state
+                                .setBody(body)
+                                .setChannelId("my_channel") // MUST MATCH FLUTTER
+                                .setClickAction("FLUTTER_NOTIFICATION_CLICK") // REQUIRED
                                 .setSound("default")
                                 .build()
                         )
                         .build()
                 )
+                .putAllData(data ?: emptyMap())
+                .build()
 
-            val response = FirebaseMessaging.getInstance().send(messageBuilder.build())
+            val response = FirebaseMessaging.getInstance().send(message)
             println("📬 FCM sent successfully: $response")
         } catch (e: Exception) {
             println("❌ FCM failed: ${e.message}")
         }
     }
 
-    fun sendToToken(token: String, title: String, body: String, data: Map<String, String>? = null) {
+    fun sendToToken(
+        token: String,
+        title: String,
+        body: String,
+        data: Map<String, String>? = null
+    ) {
         try {
-            val messageBuilder = Message.builder()
+            val message = Message.builder()
                 .setToken(token)
-                .setNotification(Notification.builder().setTitle(title).setBody(body).build())
-                .putAllData(data ?: emptyMap())
                 .setAndroidConfig(
                     AndroidConfig.builder()
                         .setPriority(AndroidConfig.Priority.HIGH)
                         .setNotification(
                             AndroidNotification.builder()
-                                .setChannelId("high_importance_channel")
+                                .setTitle(title)
+                                .setBody(body)
+                                .setChannelId("my_channel")
+                                .setClickAction("FLUTTER_NOTIFICATION_CLICK")
                                 .setSound("default")
                                 .build()
                         )
                         .build()
                 )
+                .putAllData(data ?: emptyMap())
+                .build()
 
-            val response = FirebaseMessaging.getInstance().send(messageBuilder.build())
-            println("📬 FCM sent to token successfully: $response")
+            val response = FirebaseMessaging.getInstance().send(message)
+            println("📬 FCM sent to token: $response")
         } catch (e: Exception) {
             println("❌ FCM to token failed: ${e.message}")
         }
