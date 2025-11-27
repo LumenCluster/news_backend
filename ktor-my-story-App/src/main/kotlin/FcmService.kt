@@ -24,13 +24,21 @@ class FcmService {
         try {
             val message = Message.builder()
                 .setTopic(topic)
+
+                // ⭐ CRITICAL FIX: Add top-level Notification for display reliability (iOS & Android killed state)
+                .setNotification(
+                    Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build()
+                )
+
                 .setAndroidConfig(
                     AndroidConfig.builder()
                         .setPriority(AndroidConfig.Priority.HIGH)
                         .setNotification(
                             AndroidNotification.builder()
-                                .setTitle(title) // REQUIRED for killed state
-                                .setBody(body)
+                                // The title/body are included in the top-level Notification now
                                 .setChannelId("my_channel") // MUST MATCH FLUTTER
                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK") // REQUIRED
                                 .setSound("default")
@@ -38,7 +46,7 @@ class FcmService {
                         )
                         .build()
                 )
-                .putAllData(data ?: emptyMap())
+                .putAllData(data ?: emptyMap()) // Contains your deep link data (e.g., articleId)
                 .build()
 
             val response = FirebaseMessaging.getInstance().send(message)
@@ -47,7 +55,6 @@ class FcmService {
             println("❌ FCM failed: ${e.message}")
         }
     }
-
     fun sendToToken(
         token: String,
         title: String,
@@ -55,15 +62,30 @@ class FcmService {
         data: Map<String, String>? = null
     ) {
         try {
+            // Prepare data payload
+            val finalData = data?.toMutableMap() ?: mutableMapOf()
+            finalData["title"] = title
+            finalData["body"] = body
+            finalData["click_action"] = "FLUTTER_NOTIFICATION_CLICK"
+            finalData["channel_id"] = "my_channel"
+
             val message = Message.builder()
                 .setToken(token)
+
+                // Top-level Notification (needed for iOS and killed-state Android)
+                .setNotification(
+                    Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build()
+                )
+
+                // Explicit Android Config (needed for background/killed Android)
                 .setAndroidConfig(
                     AndroidConfig.builder()
                         .setPriority(AndroidConfig.Priority.HIGH)
                         .setNotification(
                             AndroidNotification.builder()
-                                .setTitle(title)
-                                .setBody(body)
                                 .setChannelId("my_channel")
                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK")
                                 .setSound("default")
@@ -71,7 +93,9 @@ class FcmService {
                         )
                         .build()
                 )
-                .putAllData(data ?: emptyMap())
+
+                // Attach final data payload for deep linking
+                .putAllData(finalData)
                 .build()
 
             val response = FirebaseMessaging.getInstance().send(message)
@@ -80,7 +104,80 @@ class FcmService {
             println("❌ FCM to token failed: ${e.message}")
         }
     }
+
+
+
 }
+
+
+// class FcmService {
+
+//     fun sendToTopic(
+//         topic: String,
+//         title: String,
+//         body: String,
+//         data: Map<String, String>? = null
+//     ) {
+//         try {
+//             val message = Message.builder()
+//                 .setTopic(topic)
+//                 .setAndroidConfig(
+//                     AndroidConfig.builder()
+//                         .setPriority(AndroidConfig.Priority.HIGH)
+//                         .setNotification(
+//                             AndroidNotification.builder()
+//                                 .setTitle(title) // REQUIRED for killed state
+//                                 .setBody(body)
+//                                 .setChannelId("my_channel") // MUST MATCH FLUTTER
+//                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK") // REQUIRED
+//                                 .setSound("default")
+//                                 .build()
+//                         )
+//                         .build()
+//                 )
+//                 .putAllData(data ?: emptyMap())
+//                 .build()
+
+//             val response = FirebaseMessaging.getInstance().send(message)
+//             println("📬 FCM sent successfully: $response")
+//         } catch (e: Exception) {
+//             println("❌ FCM failed: ${e.message}")
+//         }
+//     }
+
+//     fun sendToToken(
+//         token: String,
+//         title: String,
+//         body: String,
+//         data: Map<String, String>? = null
+//     ) {
+//         try {
+//             val message = Message.builder()
+//                 .setToken(token)
+//                 .setAndroidConfig(
+//                     AndroidConfig.builder()
+//                         .setPriority(AndroidConfig.Priority.HIGH)
+//                         .setNotification(
+//                             AndroidNotification.builder()
+//                                 .setTitle(title)
+//                                 .setBody(body)
+//                                 .setChannelId("my_channel")
+//                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK")
+//                                 .setSound("default")
+//                                 .build()
+//                         )
+//                         .build()
+//                 )
+//                 .putAllData(data ?: emptyMap())
+//                 .build()
+
+//             val response = FirebaseMessaging.getInstance().send(message)
+//             println("📬 FCM sent to token: $response")
+//         } catch (e: Exception) {
+//             println("❌ FCM to token failed: ${e.message}")
+//         }
+//     }
+// }
 
 
 // class FcmService {
