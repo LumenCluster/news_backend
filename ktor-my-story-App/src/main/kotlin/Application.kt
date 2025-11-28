@@ -32,13 +32,24 @@ fun Application.module() {
     //     println("🔥 Firebase Initialized Successfully")
     // }
 
+// if (FirebaseApp.getApps().isEmpty()) {
+//     val serviceAccount = this::class.java.classLoader
+//         .getResourceAsStream("serviceAccountKey.json")
+//         ?: throw Exception("Firebase key not found in resources!")
+
+//     val options = FirebaseOptions.builder()
+//         .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+//         .build()
+
+//     FirebaseApp.initializeApp(options)
+//     println("🔥 Firebase Initialized Successfully")
+// }
 if (FirebaseApp.getApps().isEmpty()) {
-    val serviceAccount = this::class.java.classLoader
-        .getResourceAsStream("serviceAccountKey.json")
-        ?: throw Exception("Firebase key not found in resources!")
+    val serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT")
+        ?: throw Exception("Firebase key not found in env variable!")
 
     val options = FirebaseOptions.builder()
-        .setCredentials(GoogleCredentials.fromStream(serviceAccount))
+        .setCredentials(GoogleCredentials.fromStream(serviceAccountJson.byteInputStream()))
         .build()
 
     FirebaseApp.initializeApp(options)
