@@ -367,10 +367,60 @@ get("/ping") {
             // }
 
 
-            post {
+            // post {
+            //     val article = call.receive<Article>()
+            //     var generatedArticleId: Int? = null
+
+            //     transaction {
+            //         val resultRow = Articles.insert {
+            //             it[title] = article.title
+            //             it[content] = article.content
+            //             it[name] = article.name
+            //             it[category] = article.category
+            //             it[imageUrl] = article.imageUrl ?: ""
+            //             it[createdAt] = System.currentTimeMillis()
+            //             it[author] = article.author
+            //             it[views] = article.views
+            //         }
+            //         generatedArticleId = resultRow[Articles.id]
+            //     }
+
+            //     generatedArticleId?.let { articleId ->
+            //         transaction {
+            //             Notifications.insert {
+            //                 it[id] = articleId
+            //                 it[title] = article.title
+            //                 it[name] = article.name
+            //                 it[imageUrl] = article.imageUrl ?: ""
+            //                 it[author] = article.author
+            //                 it[isRead] = false
+            //                 it[createdAt] = System.currentTimeMillis()
+            //             }
+            //         }
+
+            //         //  Modern FCM call
+            //         val fcmService = FcmService()
+            //         fcmService.sendToTopic(
+            //             topic = "all",
+            //             title = "📰 New Article Added",
+            //             body = article.title,
+            //             data = mapOf(
+            //                 "articleId" to articleId.toString(),
+            //                 "name" to article.name,
+            //                 "author" to article.author
+            //             )
+            //         )
+            //     }
+
+            //     call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
+            // }
+
+
+                        post {
                 val article = call.receive<Article>()
                 var generatedArticleId: Int? = null
 
+                // 1️⃣ Insert into Articles table
                 transaction {
                     val resultRow = Articles.insert {
                         it[title] = article.title
@@ -386,6 +436,8 @@ get("/ping") {
                 }
 
                 generatedArticleId?.let { articleId ->
+
+                    // 2️⃣ Insert Notification Record
                     transaction {
                         Notifications.insert {
                             it[id] = articleId
@@ -398,22 +450,30 @@ get("/ping") {
                         }
                     }
 
-                    //  Modern FCM call
-                    val fcmService = FcmService()
-                    fcmService.sendToTopic(
-                        topic = "all",
-                        title = "📰 New Article Added",
-                        body = article.title,
-                        data = mapOf(
-                            "articleId" to articleId.toString(),
-                            "name" to article.name,
-                            "author" to article.author
-                        )
-                    )
+                    // 3️⃣ Send FCM 🚀 OUTSIDE transaction, async
+                    launch {
+                        try {
+                            val fcmService = FcmService()
+                            fcmService.sendToTopic(
+                                topic = "all",
+                                title = "📰 New Article Added",
+                                body = article.title,
+                                data = mapOf(
+                                    "articleId" to articleId.toString(),
+                                    "name" to article.name,
+                                    "author" to article.author
+                                )
+                            )
+                            println("✔️ FCM sent for ArticleID: $articleId")
+                        } catch (e: Exception) {
+                            println("❌ Failed to send FCM for ArticleID: $articleId → ${e.message}")
+                        }
+                    }
                 }
 
                 call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
             }
+
 
 
             //  Fetch latest articles
