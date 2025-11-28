@@ -67,7 +67,6 @@ class FcmService {
             // 1. Prepare Data Payload to include standard keys from your JSON
             val finalData = data?.toMutableMap() ?: mutableMapOf()
             finalData["click_action"] = "FLUTTER_NOTIFICATION_CLICK" 
-            finalData["sound"] = "default" // Optional: Add sound to data payload
             
             val message = Message.builder()
                 .setTopic(topic)
@@ -77,7 +76,6 @@ class FcmService {
                     Notification.builder()
                         .setTitle(title)
                         .setBody(body)
-                        .setSound("default") // Setting 'sound' here is generally for iOS 
                         .build()
                 )
 
@@ -89,7 +87,6 @@ class FcmService {
                             AndroidNotification.builder()
                                 .setChannelId("my_channel") // MUST MATCH FLUTTER
                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK") // REQUIRED by Flutter for handling taps
-                                .setSound("default")
                                 .build()
                         )
                         .build()
@@ -138,7 +135,6 @@ class FcmService {
                             AndroidNotification.builder()
                                 .setChannelId("my_channel")
                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK")
-                                .setSound("default")
                                 .build()
                         )
                         .build()
