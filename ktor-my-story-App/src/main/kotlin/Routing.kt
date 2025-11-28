@@ -14,6 +14,8 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import com.example.FcmService
+import kotlinx.coroutines.launch
+
 
 
 fun Application.configureRouting() {
