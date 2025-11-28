@@ -13,6 +13,8 @@ import com.google.firebase.messaging.AndroidConfig
 import com.google.firebase.messaging.AndroidNotification
 import com.google.firebase.messaging.Notification
 
+
+
 class FcmService {
 
     // fun sendToTopic(
@@ -66,8 +68,8 @@ class FcmService {
         try {
             // 1. Prepare Data Payload to include standard keys from your JSON
             val finalData = data?.toMutableMap() ?: mutableMapOf()
-            finalData["click_action"] = "FLUTTER_NOTIFICATION_CLICK" 
-            
+            finalData["click_action"] = "FLUTTER_NOTIFICATION_CLICK"
+
             val message = Message.builder()
                 .setTopic(topic)
 
@@ -76,6 +78,7 @@ class FcmService {
                     Notification.builder()
                         .setTitle(title)
                         .setBody(body)
+//                        .setSound("default") // Setting 'sound' here is generally for iOS
                         .build()
                 )
 
@@ -87,13 +90,14 @@ class FcmService {
                             AndroidNotification.builder()
                                 .setChannelId("my_channel") // MUST MATCH FLUTTER
                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK") // REQUIRED by Flutter for handling taps
+//                                .setSound("default")
                                 .build()
                         )
                         .build()
                 )
-                
+
                 // 4. Attach ALL Data Payload (includes your custom keys + click_action/sound)
-                .putAllData(finalData) 
+                .putAllData(finalData)
                 .build()
 
             val response = FirebaseMessaging.getInstance().send(message)
@@ -154,6 +158,11 @@ class FcmService {
 
 
 }
+
+
+
+
+
 
 
 // class FcmService {
