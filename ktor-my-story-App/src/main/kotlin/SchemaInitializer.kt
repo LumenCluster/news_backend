@@ -9,11 +9,14 @@ import org.jetbrains.exposed.sql.transactions.transaction
                 SchemaUtils.create(Categories)
                 SchemaUtils.create(Articles)
                 SchemaUtils.create(Notifications) 
+               SchemaUtils.create(DeviceTokens)
+
 
 
             }
         }
     }
+
 
 
 
