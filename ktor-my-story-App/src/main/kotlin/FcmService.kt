@@ -15,108 +15,49 @@ import com.google.firebase.messaging.Notification
 
 
 class FcmService {
+    fun sendToTopic(
+        topic: String,
+        title: String,
+        body: String,
+        data: Map<String, String>? = null
+    ) {
+        try {
+            val finalData = data?.toMutableMap() ?: mutableMapOf()
+            // Do NOT add click_action here
 
-//     fun sendToTopic(
-//         topic: String,
-//         title: String,
-//         body: String,
-//         data: Map<String, String>? = null
-//     ) {
-//         try {
-//             // 1. Prepare Data Payload to include standard keys from your JSON
-//             val finalData = data?.toMutableMap() ?: mutableMapOf()
-//             finalData["click_action"] = "FLUTTER_NOTIFICATION_CLICK"
-
-//             val message = Message.builder()
-//                 .setTopic(topic)
-
-//                 // 2. Notification Payload (For System Display: iOS & Killed Android)
-//                 .setNotification(
-//                     Notification.builder()
-//                         .setTitle(title)
-//                         .setBody(body)
-// //                        .setSound("default") // Setting 'sound' here is generally for iOS
-//                         .build()
-//                 )
-
-//                 // 3. Android-Specific Configuration
-//                 .setAndroidConfig(
-//                     AndroidConfig.builder()
-//                         .setPriority(AndroidConfig.Priority.HIGH)
-//                         .setNotification(
-//                             AndroidNotification.builder()
-//                                 .setChannelId("my_channel") // MUST MATCH FLUTTER
-//                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK") // REQUIRED by Flutter for handling taps
-// //                                .setSound("default")
-//                                 .build()
-//                         )
-//                         .build()
-//                 )
-
-//                 // 4. Attach ALL Data Payload (includes your custom keys + click_action/sound)
-//                 .putAllData(finalData)
-//                 .build()
-
-//             val response = FirebaseMessaging.getInstance().send(message)
-//             println("📬 FCM sent successfully: $response")
-//         } catch (e: Exception) {
-//             println("❌ FCM failed: ${e.message}")
-//         }
-//     }
+            val message = Message.builder()
+                .setTopic(topic)
+                // This top-level notification ensures system shows it when app is killed
+                .setNotification(
+                    Notification.builder()
+                        .setTitle(title)
+                        .setBody(body)
+                        .build()
+                )
+                .setAndroidConfig(
+                    AndroidConfig.builder()
+                        .setPriority(AndroidConfig.Priority.HIGH)
+                        .setNotification(
+                            AndroidNotification.builder()
+                                .setChannelId("my_channel") // MUST MATCH Flutter
+                                .setClickAction("FLUTTER_NOTIFICATION_CLICK") // For Flutter tap handling
+                                .build()
+                        )
+                        .build()
+                )
+                .putAllData(finalData) // only custom keys, e.g., articleId
+                .build()
+            println("📦 Data Payload: $finalData")
 
 
-fun sendToTopic(
-    topic: String,
-    title: String,
-    body: String,
-    data: Map<String, String>? = null
-) {
-    try {
-        // 1. Prepare Data Payload
-        val finalData = data?.toMutableMap() ?: mutableMapOf()
-        
-        // ❌ REMOVE THIS LINE! It's redundant and can interfere with OS display.
-        // finalData["click_action"] = "FLUTTER_NOTIFICATION_CLICK" 
-        // -------------------------------------------------------------
-
-        val message = Message.builder()
-            .setTopic(topic)
-
-            // 2. Notification Payload (For System Display: iOS & Killed Android)
-            .setNotification(
-                Notification.builder()
-                    .setTitle(title)
-                    .setBody(body)
-                    .build()
-            )
-
-            // 3. Android-Specific Configuration (This is where the click_action should be)
-            .setAndroidConfig(
-                AndroidConfig.builder()
-                    .setPriority(AndroidConfig.Priority.HIGH)
-                    .setNotification(
-                        AndroidNotification.builder()
-                            .setChannelId("my_channel") // MUST MATCH FLUTTER
-                            .setClickAction("FLUTTER_NOTIFICATION_CLICK") // ✅ Keep this one!
-                            .build()
-                    )
-                    .build()
-            )
-
-            // 4. Attach ALL Data Payload (Now only contains custom keys like 'articleId')
-            .putAllData(finalData)
-            .build()
-
-        val response = FirebaseMessaging.getInstance().send(message)
-        println("📬 FCM sent successfully: $response")
-    } catch (e: Exception) {
-        println("❌ FCM failed: ${e.message}")
+            val response = FirebaseMessaging.getInstance().send(message)
+            println("📬 FCM sent successfully: $response")
+        } catch (e: Exception) {
+            println("❌ FCM failed: ${e.message}")
+        }
     }
-}
 
 
-    
-    
     fun sendToToken(
         token: String,
         title: String,
@@ -124,25 +65,18 @@ fun sendToTopic(
         data: Map<String, String>? = null
     ) {
         try {
-            // Prepare data payload
             val finalData = data?.toMutableMap() ?: mutableMapOf()
-            finalData["title"] = title
-            finalData["body"] = body
-            finalData["click_action"] = "FLUTTER_NOTIFICATION_CLICK"
-            finalData["channel_id"] = "my_channel"
+            // Include only custom keys like articleId
+            finalData["articleId"] = finalData["articleId"] ?: "0"
 
             val message = Message.builder()
                 .setToken(token)
-
-                // Top-level Notification (needed for iOS and killed-state Android)
                 .setNotification(
                     Notification.builder()
                         .setTitle(title)
                         .setBody(body)
                         .build()
                 )
-
-                // Explicit Android Config (needed for background/killed Android)
                 .setAndroidConfig(
                     AndroidConfig.builder()
                         .setPriority(AndroidConfig.Priority.HIGH)
@@ -154,10 +88,9 @@ fun sendToTopic(
                         )
                         .build()
                 )
-
-                // Attach final data payload for deep linking
                 .putAllData(finalData)
                 .build()
+            println("📦 Data Payload: $finalData")
 
             val response = FirebaseMessaging.getInstance().send(message)
             println("📬 FCM sent to token: $response")
@@ -168,130 +101,6 @@ fun sendToTopic(
 
 
 
+
+
 }
-
-
-
-
-
-
-
-// class FcmService {
-
-//     fun sendToTopic(
-//         topic: String,
-//         title: String,
-//         body: String,
-//         data: Map<String, String>? = null
-//     ) {
-//         try {
-//             val message = Message.builder()
-//                 .setTopic(topic)
-//                 .setAndroidConfig(
-//                     AndroidConfig.builder()
-//                         .setPriority(AndroidConfig.Priority.HIGH)
-//                         .setNotification(
-//                             AndroidNotification.builder()
-//                                 .setTitle(title) // REQUIRED for killed state
-//                                 .setBody(body)
-//                                 .setChannelId("my_channel") // MUST MATCH FLUTTER
-//                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK") // REQUIRED
-//                                 .setSound("default")
-//                                 .build()
-//                         )
-//                         .build()
-//                 )
-//                 .putAllData(data ?: emptyMap())
-//                 .build()
-
-//             val response = FirebaseMessaging.getInstance().send(message)
-//             println("📬 FCM sent successfully: $response")
-//         } catch (e: Exception) {
-//             println("❌ FCM failed: ${e.message}")
-//         }
-//     }
-
-//     fun sendToToken(
-//         token: String,
-//         title: String,
-//         body: String,
-//         data: Map<String, String>? = null
-//     ) {
-//         try {
-//             val message = Message.builder()
-//                 .setToken(token)
-//                 .setAndroidConfig(
-//                     AndroidConfig.builder()
-//                         .setPriority(AndroidConfig.Priority.HIGH)
-//                         .setNotification(
-//                             AndroidNotification.builder()
-//                                 .setTitle(title)
-//                                 .setBody(body)
-//                                 .setChannelId("my_channel")
-//                                 .setClickAction("FLUTTER_NOTIFICATION_CLICK")
-//                                 .setSound("default")
-//                                 .build()
-//                         )
-//                         .build()
-//                 )
-//                 .putAllData(data ?: emptyMap())
-//                 .build()
-
-//             val response = FirebaseMessaging.getInstance().send(message)
-//             println("📬 FCM sent to token: $response")
-//         } catch (e: Exception) {
-//             println("❌ FCM to token failed: ${e.message}")
-//         }
-//     }
-// }
-
-
-// class FcmService {
-
-//     /**
-//      * Send a notification to a topic (e.g., "all")
-//      */
-//     fun sendToTopic(
-//         topic: String,
-//         title: String,
-//         body: String,
-//         data: Map<String, String>? = null
-//     ) {
-//         try {
-//             val messageBuilder = Message.builder()
-//                 .setTopic(topic)
-//                 .setNotification(com.google.firebase.messaging.Notification.builder().setTitle(title).setBody(body).build())
-
-//             data?.let { messageBuilder.putAllData(it) }
-
-//             val response = FirebaseMessaging.getInstance().send(messageBuilder.build())
-//             println("📬 FCM sent successfully: $response")
-//         } catch (e: Exception) {
-//             println("❌ FCM failed: ${e.message}")
-//         }
-//     }
-
-//     /**
-//      * Send a notification to a specific device using token
-//      */
-//     fun sendToToken(
-//         token: String,
-//         title: String,
-//         body: String,
-//         data: Map<String, String>? = null
-//     ) {
-//         try {
-//             val messageBuilder = Message.builder()
-//                 .setToken(token)
-//                 .setNotification(com.google.firebase.messaging.Notification.builder().setTitle(title).setBody(body).build())
-
-//             data?.let { messageBuilder.putAllData(it) }
-
-//             val response = FirebaseMessaging.getInstance().send(messageBuilder.build())
-//             println("📬 FCM sent to token successfully: $response")
-//         } catch (e: Exception) {
-//             println("❌ FCM to token failed: ${e.message}")
-//         }
-//     }
-// }
-
