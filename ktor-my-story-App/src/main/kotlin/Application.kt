@@ -44,19 +44,33 @@ fun Application.module() {
 //     FirebaseApp.initializeApp(options)
 //     println("🔥 Firebase Initialized Successfully")
 // }
-if (FirebaseApp.getApps().isEmpty()) {
-    val serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT")
-        ?: throw Exception("Firebase key not found in env variable!")
+// if (FirebaseApp.getApps().isEmpty()) {
+//     val serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT")
+//         ?: throw Exception("Firebase key not found in env variable!")
 
-    val options = FirebaseOptions.builder()
-        .setCredentials(GoogleCredentials.fromStream(serviceAccountJson.byteInputStream()))
-        .build()
+//     val options = FirebaseOptions.builder()
+//         .setCredentials(GoogleCredentials.fromStream(serviceAccountJson.byteInputStream()))
+//         .build()
 
-    FirebaseApp.initializeApp(options)
-    println("🔥 Firebase Initialized Successfully")
-}
+//     FirebaseApp.initializeApp(options)
+//     println("🔥 Firebase Initialized Successfully")
+// }
 
+    if (FirebaseApp.getApps().isEmpty()) {
+        val serviceAccountJson = System.getenv("FIREBASE_SERVICE_ACCOUNT")
+            ?: throw Exception("Firebase key not found in env variable!")
 
+        println("➡ About to build FirebaseOptions...")
+
+        val options = FirebaseOptions.builder()
+            .setCredentials(GoogleCredentials.fromStream(serviceAccountJson.byteInputStream()))
+            .build()
+
+        println("✅ FirebaseOptions built successfully!")
+
+        FirebaseApp.initializeApp(options)
+        println("🔥 Firebase Initialized Successfully")
+    }
     
     DatabaseFactory.init()
     configureSerialization()
