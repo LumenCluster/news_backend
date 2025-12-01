@@ -14,7 +14,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
 import com.example.FcmService
-import kotlinx.coroutines.launch
+// import kotlinx.coroutines.launch
+
+
 
 
 
@@ -418,11 +420,73 @@ get("/ping") {
             // }
 
 
-                        post {
+            //             post {
+            //     val article = call.receive<Article>()
+            //     var generatedArticleId: Int? = null
+
+            //     // 1️⃣ Insert into Articles table
+            //     transaction {
+            //         val resultRow = Articles.insert {
+            //             it[title] = article.title
+            //             it[content] = article.content
+            //             it[name] = article.name
+            //             it[category] = article.category
+            //             it[imageUrl] = article.imageUrl ?: ""
+            //             it[createdAt] = System.currentTimeMillis()
+            //             it[author] = article.author
+            //             it[views] = article.views
+            //         }
+            //         generatedArticleId = resultRow[Articles.id]
+            //     }
+
+            //     generatedArticleId?.let { articleId ->
+
+            //         // 2️⃣ Insert Notification Record
+            //         transaction {
+            //             Notifications.insert {
+            //                 it[id] = articleId
+            //                 it[title] = article.title
+            //                 it[name] = article.name
+            //                 it[imageUrl] = article.imageUrl ?: ""
+            //                 it[author] = article.author
+            //                 it[isRead] = false
+            //                 it[createdAt] = System.currentTimeMillis()
+            //             }
+            //         }
+
+            //         // 3️⃣ Send FCM 🚀 OUTSIDE transaction, async
+            //         launch {
+            //             try {
+            //                 val fcmService = FcmService()
+            //                 fcmService.sendToTopic(
+            //                     topic = "all",
+            //                     title = "📰 New Article Added",
+            //                     body = article.title,
+            //                     data = mapOf(
+            //                         "articleId" to articleId.toString(),
+            //                         "name" to article.name,
+            //                         "author" to article.author
+            //                     )
+            //                 )
+            //                 println("✔️ FCM sent for ArticleID: $articleId")
+            //             } catch (e: Exception) {
+            //                 println("❌ Failed to send FCM for ArticleID: $articleId → ${e.message}")
+            //             }
+            //         }
+            //     }
+
+            //     call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
+            // }
+
+
+
+
+
+                        post() {
                 val article = call.receive<Article>()
                 var generatedArticleId: Int? = null
 
-                // 1️⃣ Insert into Articles table
+                // 1️⃣ Insert article
                 transaction {
                     val resultRow = Articles.insert {
                         it[title] = article.title
@@ -438,8 +502,7 @@ get("/ping") {
                 }
 
                 generatedArticleId?.let { articleId ->
-
-                    // 2️⃣ Insert Notification Record
+                    // 2️⃣ Insert notification
                     transaction {
                         Notifications.insert {
                             it[id] = articleId
@@ -452,25 +515,34 @@ get("/ping") {
                         }
                     }
 
-                    // 3️⃣ Send FCM 🚀 OUTSIDE transaction, async
-                    launch {
-                        try {
-                            val fcmService = FcmService()
-                            fcmService.sendToTopic(
-                                topic = "all",
-                                title = "📰 New Article Added",
-                                body = article.title,
-                                data = mapOf(
-                                    "articleId" to articleId.toString(),
-                                    "name" to article.name,
-                                    "author" to article.author
-                                )
-                            )
-                            println("✔️ FCM sent for ArticleID: $articleId")
-                        } catch (e: Exception) {
-                            println("❌ Failed to send FCM for ArticleID: $articleId → ${e.message}")
-                        }
-                    }
+                    val fcmService = FcmService()
+
+                    // 3️⃣ Broadcast to all devices subscribed to "all"
+                    fcmService.sendToTopic(
+                        topic = "all",
+                        title = "📰 New Article Added",
+                        body = article.title,
+                        data = mapOf(
+                            "articleId" to articleId.toString(),
+                            "name" to article.name,
+                            "author" to article.author,
+                            "screen" to "article"
+                        )
+                    )
+
+                    // 4️⃣ Send to personal device token (example: first device in DB)
+                    val deviceToken = "cFSw6cSxQTCNaPsaPtle5_:APA91bEbZiejxH70j_0oNZhzaN49Q756rFzEdr91vcExhDMTIhojcWUX0E6a1BA47Dv9snx4Q0DNjW3PNftFmlyEr-qtzKD_n3XK-ADfvumiK7zB5Y5bkJQ"
+//                    val deviceToken = "<cFSw6cSxQTCNaPsaPtle5_:APA91bEbZiejxH70j_0oNZhzaN49Q756rFzEdr91vcExhDMTIhojcWUX0E6a1BA47Dv9snx4Q0DNjW3PNftFmlyEr-qtzKD_n3XK-ADfvumiK7zB5Y5bkJQ>" // fetch from DB dynamically
+                    fcmService.sendToToken(
+                        token = deviceToken,
+                        title = "📰 New Article Added",
+                        body = article.title,
+                        data = mapOf(
+                            "articleId" to articleId.toString(),
+                            "screen" to "article",
+                            "name" to article.name
+                        )
+                    )
                 }
 
                 call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
