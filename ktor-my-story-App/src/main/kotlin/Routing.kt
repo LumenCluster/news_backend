@@ -263,11 +263,21 @@ get("/ping") {
 
             val repository = DeviceTokenRepository()
 
-            post("/registerDeviceToken") {
+            // post("/registerDeviceToken") {
+            //     val request = call.receive<DeviceToken>()
+            //     repository.saveToken(request) // now correctly saves userId + token
+            //     call.respond(HttpStatusCode.OK, mapOf("message" to "Token saved"))
+            // }
+        post("/registerDeviceToken") {
+            try {
                 val request = call.receive<DeviceToken>()
-                repository.saveToken(request) // now correctly saves userId + token
+                repository.saveToken(request)
                 call.respond(HttpStatusCode.OK, mapOf("message" to "Token saved"))
+            } catch (e: Exception) {
+                println("❌ ERROR: ${e.message}")
+                call.respond(HttpStatusCode.BadRequest, "Invalid JSON: ${e.message}")
             }
+        }
 
 
 
