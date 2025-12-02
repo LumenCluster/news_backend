@@ -605,18 +605,18 @@ get("/ping") {
 
                     val fcmService = FcmService()
 
-                    // 3️⃣ Broadcast to all devices subscribed to "all"
-                    fcmService.sendToTopic(
-                        topic = "all",
-                        title = "📰 New Article Added",
-                        body = article.title,
-                        data = mapOf(
-                            "articleId" to articleId.toString(),
-                            "name" to article.name,
-                            "author" to article.author,
-                            "screen" to "article"
-                        )
-                    )
+                    // // 3️⃣ Broadcast to all devices subscribed to "all"
+                    // fcmService.sendToTopic(
+                    //     topic = "all",
+                    //     title = "📰 New Article Added",
+                    //     body = article.title,
+                    //     data = mapOf(
+                    //         "articleId" to articleId.toString(),
+                    //         "name" to article.name,
+                    //         "author" to article.author,
+                    //         "screen" to "article"
+                    //     )
+                    // )
 
                     // 4️⃣ Send to personal device token (example: first device in DB)
 //                    val deviceToken = "cFSw6cSxQTCNaPsaPtle5_:APA91bEbZiejxH70j_0oNZhzaN49Q756rFzEdr91vcExhDMTIhojcWUX0E6a1BA47Dv9snx4Q0DNjW3PNftFmlyEr-qtzKD_n3XK-ADfvumiK7zB5Y5bkJQ"
