@@ -257,7 +257,17 @@ get("/ping") {
 //
 //        }
 
+            get("/registerDeviceToken") {
+    call.respond("Use POST for saving token ❗")
+}
 
+            val repository = DeviceTokenRepository()
+
+            post("/registerDeviceToken") {
+                val request = call.receive<DeviceToken>()
+                repository.saveToken(request) // now correctly saves userId + token
+                call.respond(HttpStatusCode.OK, mapOf("message" to "Token saved"))
+            }
 
 
 
@@ -700,20 +710,6 @@ get("/ping") {
 
                 call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
             }
-
-            get("/registerDeviceToken") {
-    call.respond("Use POST for saving token ❗")
-}
-
-            val repository = DeviceTokenRepository()
-
-            post("/registerDeviceToken") {
-                val request = call.receive<DeviceToken>()
-                repository.saveToken(request) // now correctly saves userId + token
-                call.respond(HttpStatusCode.OK, mapOf("message" to "Token saved"))
-            }
-            
-
 
             //  Fetch latest articles
             get("/latest") {
