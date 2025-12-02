@@ -30,9 +30,11 @@ data class Notification(
     val isRead: Boolean,
     val createdAt: Long
 )
+@Serializable
 data class DeviceToken(
     val userId: String,
     val token: String,
     val updatedAt: Long = System.currentTimeMillis()
 )
+
 
