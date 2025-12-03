@@ -73,11 +73,13 @@ fun Application.module() {
         FirebaseApp.initializeApp(options)
         println("🔥 Firebase Initialized Successfully")
     }
+
+        DatabaseFactory.init()
+
     val repo = DeviceTokenRepository()
     repo.cleanupDuplicateTokens()
 
     
-    DatabaseFactory.init()
     configureSerialization()
     configureCORS()
     configureRouting()
