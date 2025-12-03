@@ -263,11 +263,16 @@ get("/ping") {
 
             val repository = DeviceTokenRepository()
 
-            // post("/registerDeviceToken") {
-            //     val request = call.receive<DeviceToken>()
-            //     repository.saveToken(request) // now correctly saves userId + token
-            //     call.respond(HttpStatusCode.OK, mapOf("message" to "Token saved"))
-            // }
+        // post("/registerDeviceToken") {
+        //     try {
+        //         val request = call.receive<DeviceToken>()
+        //         repository.saveToken(request)
+        //         call.respond(HttpStatusCode.OK, mapOf("message" to "Token saved"))
+        //     } catch (e: Exception) {
+        //         println("❌ ERROR: ${e.message}")
+        //         call.respond(HttpStatusCode.BadRequest, "Invalid JSON: ${e.message}")
+        //     }
+        // }
         post("/registerDeviceToken") {
             try {
                 val request = call.receive<DeviceToken>()
@@ -570,6 +575,157 @@ get("/ping") {
 //                 call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
 //             }
 
+//             post() {
+//                 val article = call.receive<Article>()
+//                 var generatedArticleId: Int? = null
+
+//                 // 1️⃣ Insert article
+//                 transaction {
+//                     val resultRow = Articles.insert {
+//                         it[title] = article.title
+//                         it[content] = article.content
+//                         it[name] = article.name
+//                         it[category] = article.category
+//                         it[imageUrl] = article.imageUrl ?: ""
+//                         it[createdAt] = System.currentTimeMillis()
+//                         it[author] = article.author
+//                         it[views] = article.views
+//                     }
+//                     generatedArticleId = resultRow[Articles.id]
+//                 }
+
+//                 generatedArticleId?.let { articleId ->
+//                     // 2️⃣ Insert notification
+//                     transaction {
+//                         Notifications.insert {
+//                             it[id] = articleId
+//                             it[title] = article.title
+//                             it[name] = article.name
+//                             it[imageUrl] = article.imageUrl ?: ""
+//                             it[author] = article.author
+//                             it[isRead] = false
+//                             it[createdAt] = System.currentTimeMillis()
+//                         }
+//                     }
+
+//                     val fcmService = FcmService()
+
+//                     // // 3️⃣ Broadcast to all devices subscribed to "all"
+//                     // fcmService.sendToTopic(
+//                     //     topic = "all",
+//                     //     title = "📰 New Article Added",
+//                     //     body = article.title,
+//                     //     data = mapOf(
+//                     //         "articleId" to articleId.toString(),
+//                     //         "name" to article.name,
+//                     //         "author" to article.author,
+//                     //         "screen" to "article"
+//                     //     )
+//                     // )
+
+//                     // 4️⃣ Send to personal device token (example: first device in DB)
+// //                    val deviceToken = "cFSw6cSxQTCNaPsaPtle5_:APA91bEbZiejxH70j_0oNZhzaN49Q756rFzEdr91vcExhDMTIhojcWUX0E6a1BA47Dv9snx4Q0DNjW3PNftFmlyEr-qtzKD_n3XK-ADfvumiK7zB5Y5bkJQ"
+// //                    val deviceToken = "<cFSw6cSxQTCNaPsaPtle5_:APA91bEbZiejxH70j_0oNZhzaN49Q756rFzEdr91vcExhDMTIhojcWUX0E6a1BA47Dv9snx4Q0DNjW3PNftFmlyEr-qtzKD_n3XK-ADfvumiK7zB5Y5bkJQ>" // fetch from DB dynamically
+// //                    fcmService.sendToToken(
+// //                        token = deviceToken,
+// //                        title = "📰 New Article Added",
+// //                        body = article.title,
+// //                        data = mapOf(
+// //                            "articleId" to articleId.toString(),
+// //                            "screen" to "article",
+// //                            "name" to article.name
+// //                        )
+// //                    )
+// //                    val repository = DeviceTokenRepository()
+// //
+// //                    val userToken = repository.getToken("user123") // Or dynamic based on your logic
+// //
+// //                    if (userToken != null) {
+// //                        try {
+// //                            fcmService.sendToToken(
+// //                                token = userToken,
+// //                                title = "📰 New Article Added",
+// //                                body = article.title,
+// //                                data = mapOf(
+// //                                    "articleId" to articleId.toString(),
+// //                                    "screen" to "article",
+// //                                    "name" to article.name
+// //                                )
+// //                            )
+// //                        } catch (e: Exception) {
+// //                            if (e.message?.contains("Requested entity was not found") == true) {
+// //                                println("❌ Token invalid, removing from store")
+// ////                                DeviceTokenStore.tokens.remove("user123")
+// ////                                DeviceTokenRepository.removeToken("user123") // ✅ Use this function
+// //                                repository.removeToken("user123")
+// //
+// //                            } else {
+// //                                println("❌ FCM send error: ${e.message}")
+// //                            }
+// //                        }
+// //                    } else {
+// //                        println("⚠️ No token found for user123, sending to topic instead")
+// //                        fcmService.sendToTopic(
+// //                            topic = "all",
+// //                            title = "📰 New Article Added",
+// //                            body = article.title,
+// //                            data = mapOf(
+// //                                "articleId" to articleId.toString(),
+// //                                "name" to article.name,
+// //                                "screen" to "article"
+// //                            )
+// //                        )
+// //                    }
+//                     val repository = DeviceTokenRepository()
+//                     val tokens = repository.getAllTokens() // returns List<DeviceToken>
+
+// //                    tokens.forEach { token ->
+// //                        try {
+// //                            fcmService.sendToToken(
+// //                                token,
+// //                                "📰 New Article Added",
+// //                                article.title,
+// //                                mapOf(
+// //                                    "articleId" to articleId.toString(),
+// //                                    "screen" to "article",
+// //                                    "name" to article.name
+// //                                )
+// //                            )
+// //                        } catch (e: Exception) {
+// //                            if (e.message?.contains("Requested entity was not found") == true) {
+// //                                DeviceTokenRepository.removeToken(token)
+// //                            } else {
+// //                                println("❌ FCM send error: ${e.message}")
+// //                            }
+// //                        }
+// //                    }
+//                     tokens.forEach { deviceToken ->
+//                         try {
+//                             fcmService.sendToToken(deviceToken.token,
+//                                 "📰 New Article Added",
+//                                 article.title,
+//                                 mapOf(
+//                                     "articleId" to articleId.toString(),
+//                                     "screen" to "article",
+//                                     "name" to article.name
+//                             )
+
+
+//                             )
+//                         } catch (e: Exception) {
+//                             if (e.message?.contains("Requested entity was not found") == true) {
+//                                 repository.removeToken(deviceToken.userId)
+//                             }
+//                         }
+//                     }
+
+
+
+//                 }
+
+//                 call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
+//             }
+
             post() {
                 val article = call.receive<Article>()
                 var generatedArticleId: Int? = null
@@ -602,99 +758,30 @@ get("/ping") {
                             it[createdAt] = System.currentTimeMillis()
                         }
                     }
+                    println("About to broadcast: articleId=$articleId, title=${article.title}")
 
                     val fcmService = FcmService()
 
-                    // // 3️⃣ Broadcast to all devices subscribed to "all"
-                    // fcmService.sendToTopic(
-                    //     topic = "all",
-                    //     title = "📰 New Article Added",
-                    //     body = article.title,
-                    //     data = mapOf(
-                    //         "articleId" to articleId.toString(),
-                    //         "name" to article.name,
-                    //         "author" to article.author,
-                    //         "screen" to "article"
-                    //     )
-                    // )
-
-                    // 4️⃣ Send to personal device token (example: first device in DB)
-//                    val deviceToken = "cFSw6cSxQTCNaPsaPtle5_:APA91bEbZiejxH70j_0oNZhzaN49Q756rFzEdr91vcExhDMTIhojcWUX0E6a1BA47Dv9snx4Q0DNjW3PNftFmlyEr-qtzKD_n3XK-ADfvumiK7zB5Y5bkJQ"
-//                    val deviceToken = "<cFSw6cSxQTCNaPsaPtle5_:APA91bEbZiejxH70j_0oNZhzaN49Q756rFzEdr91vcExhDMTIhojcWUX0E6a1BA47Dv9snx4Q0DNjW3PNftFmlyEr-qtzKD_n3XK-ADfvumiK7zB5Y5bkJQ>" // fetch from DB dynamically
-//                    fcmService.sendToToken(
-//                        token = deviceToken,
+                    // 3️⃣ Broadcast to all devices subscribed to "all"
+//                    fcmService.sendToTopic(
+//                        topic = "all",
 //                        title = "📰 New Article Added",
 //                        body = article.title,
 //                        data = mapOf(
 //                            "articleId" to articleId.toString(),
-//                            "screen" to "article",
-//                            "name" to article.name
+//                            "name" to article.name,
+//                            "author" to article.author,
+//                            "screen" to "article"
 //                        )
 //                    )
-//                    val repository = DeviceTokenRepository()
-//
-//                    val userToken = repository.getToken("user123") // Or dynamic based on your logic
-//
-//                    if (userToken != null) {
-//                        try {
-//                            fcmService.sendToToken(
-//                                token = userToken,
-//                                title = "📰 New Article Added",
-//                                body = article.title,
-//                                data = mapOf(
-//                                    "articleId" to articleId.toString(),
-//                                    "screen" to "article",
-//                                    "name" to article.name
-//                                )
-//                            )
-//                        } catch (e: Exception) {
-//                            if (e.message?.contains("Requested entity was not found") == true) {
-//                                println("❌ Token invalid, removing from store")
-////                                DeviceTokenStore.tokens.remove("user123")
-////                                DeviceTokenRepository.removeToken("user123") // ✅ Use this function
-//                                repository.removeToken("user123")
-//
-//                            } else {
-//                                println("❌ FCM send error: ${e.message}")
-//                            }
-//                        }
-//                    } else {
-//                        println("⚠️ No token found for user123, sending to topic instead")
-//                        fcmService.sendToTopic(
-//                            topic = "all",
-//                            title = "📰 New Article Added",
-//                            body = article.title,
-//                            data = mapOf(
-//                                "articleId" to articleId.toString(),
-//                                "name" to article.name,
-//                                "screen" to "article"
-//                            )
-//                        )
-//                    }
                     val repository = DeviceTokenRepository()
                     val tokens = repository.getAllTokens() // returns List<DeviceToken>
+                    val uniqueTokens = tokens.distinctBy { it.token }
 
-//                    tokens.forEach { token ->
-//                        try {
-//                            fcmService.sendToToken(
-//                                token,
-//                                "📰 New Article Added",
-//                                article.title,
-//                                mapOf(
-//                                    "articleId" to articleId.toString(),
-//                                    "screen" to "article",
-//                                    "name" to article.name
-//                                )
-//                            )
-//                        } catch (e: Exception) {
-//                            if (e.message?.contains("Requested entity was not found") == true) {
-//                                DeviceTokenRepository.removeToken(token)
-//                            } else {
-//                                println("❌ FCM send error: ${e.message}")
-//                            }
-//                        }
-//                    }
-                    tokens.forEach { deviceToken ->
+                    println("Found ${tokens.size} tokens: ${tokens.map { it.token }}")
+                    uniqueTokens.forEach { deviceToken ->
+                        println("Sending to token: ${deviceToken.token} (userId=${deviceToken.userId})")
+
                         try {
                             fcmService.sendToToken(deviceToken.token,
                                 "📰 New Article Added",
@@ -703,16 +790,35 @@ get("/ping") {
                                     "articleId" to articleId.toString(),
                                     "screen" to "article",
                                     "name" to article.name
-                            )
-
-
+                                )
                             )
                         } catch (e: Exception) {
                             if (e.message?.contains("Requested entity was not found") == true) {
                                 repository.removeToken(deviceToken.userId)
+                            } else {
+                                println("❌ Error sending to token ${deviceToken.token}: ${e.message}")
                             }
                         }
                     }
+//                    tokens.forEach { deviceToken ->
+//                        try {
+//                            fcmService.sendToToken(deviceToken.token,
+//                                "📰 New Article Added",
+//                                article.title,
+//                                mapOf(
+//                                    "articleId" to articleId.toString(),
+//                                    "screen" to "article",
+//                                    "name" to article.name
+//                            )
+//
+//
+//                            )
+//                        } catch (e: Exception) {
+//                            if (e.message?.contains("Requested entity was not found") == true) {
+//                                repository.removeToken(deviceToken.userId)
+//                            }
+//                        }
+//                    }
 
 
 
@@ -721,6 +827,9 @@ get("/ping") {
                 call.respond(HttpStatusCode.Created, "New Article added and FCM sent")
             }
 
+
+
+            
             //  Fetch latest articles
             get("/latest") {
                 val latestArticles = transaction {
