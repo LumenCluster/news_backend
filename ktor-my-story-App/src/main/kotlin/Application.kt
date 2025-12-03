@@ -8,6 +8,8 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.firebase.FirebaseApp
 import com.google.firebase.FirebaseOptions
 import java.io.FileInputStream
+import DeviceTokenRepository
+
 
 fun main() {
     embeddedServer(Netty, port = System.getenv("PORT")?.toInt() ?: 8080, host = "0.0.0.0",
@@ -71,6 +73,9 @@ fun Application.module() {
         FirebaseApp.initializeApp(options)
         println("🔥 Firebase Initialized Successfully")
     }
+    val repo = DeviceTokenRepository()
+    repo.cleanupDuplicateTokens()
+
     
     DatabaseFactory.init()
     configureSerialization()
