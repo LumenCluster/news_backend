@@ -71,60 +71,93 @@ class FcmService {
         }
     }
 
-    fun sendToToken(
-        token: String,
-        title: String,
-        body: String,
-        data: Map<String, String>? = null
-    ) {
-        try {
-            val finalData = data?.toMutableMap() ?: mutableMapOf()
-            finalData["title"] = title
-            finalData["body"] = body
-            finalData["articleId"] = finalData["articleId"] ?: "0"
+    fun sendToToken(token: String, title: String, body: String, data: Map<String, String>? = null) {
+    try {
+        val finalData = data?.toMutableMap() ?: mutableMapOf()
+        finalData["articleId"] = finalData["articleId"] ?: "0"
 
-            val message = Message.builder()
-                .setToken(token)
-                .setNotification(
-                    Notification.builder()
-                        .setTitle(title)
-                        .setBody(body)
-                        .build()
-                )
-                .setAndroidConfig(
-                    AndroidConfig.builder()
-                        .setPriority(AndroidConfig.Priority.HIGH)
-                        .setNotification(
-                            AndroidNotification.builder()
-                                .setChannelId("my_channel")
-                                .setClickAction("FLUTTER_NOTIFICATION_CLICK")
-                                .build()
-                        )
-                        .build()
-                )
-                .setApnsConfig(
-                    ApnsConfig.builder()
-                        .setAps(
-                            Aps.builder()
-                                .setAlert(ApsAlert.builder().setTitle(title).setBody(body).build())
-                                .setSound("default")
-                                .setContentAvailable(true)
-                                .build()
-                        )
-                        .build()
-                )
-                .putAllData(finalData)
-                .build()
+        val message = Message.builder()
+            .setToken(token)
+            .setNotification(
+                Notification.builder()
+                    .setTitle(title)
+                    .setBody(body)
+                    .build()
+            )
+            .setAndroidConfig(
+                AndroidConfig.builder()
+                    .setPriority(AndroidConfig.Priority.HIGH)
+                    .setNotification(
+                        AndroidNotification.builder()
+                            .setChannelId("my_channel")
+                            .setClickAction("FLUTTER_NOTIFICATION_CLICK")
+                            .build()
+                    )
+                    .build()
+            )
+            .putAllData(finalData) // Data now only contains metadata like articleId
+            .build()
 
-            println("📦 Data Payload for token $token: $finalData")
-            val response = FirebaseMessaging.getInstance().send(message)
-            println("📬 FCM sent to token: $response")
-
-        } catch (e: Exception) {
-            println("❌ FCM to token failed: ${e.message}")
-        }
+        FirebaseMessaging.getInstance().send(message)
+    } catch (e: Exception) {
+        println("❌ FCM failed: ${e.message}")
     }
 }
+
+    // fun sendToToken(
+    //     token: String,
+    //     title: String,
+    //     body: String,
+    //     data: Map<String, String>? = null
+    // ) {
+    //     try {
+    //         val finalData = data?.toMutableMap() ?: mutableMapOf()
+    //         // finalData["title"] = title
+    //         // finalData["body"] = body
+    //         finalData["articleId"] = finalData["articleId"] ?: "0"
+
+    //         val message = Message.builder()
+    //             .setToken(token)
+    //             .setNotification(
+    //                 Notification.builder()
+    //                     .setTitle(title)
+    //                     .setBody(body)
+    //                     .build()
+    //             )
+    //             .setAndroidConfig(
+    //                 AndroidConfig.builder()
+    //                     .setPriority(AndroidConfig.Priority.HIGH)
+    //                     .setNotification(
+    //                         AndroidNotification.builder()
+    //                             .setChannelId("my_channel")
+    //                             .setClickAction("FLUTTER_NOTIFICATION_CLICK")
+    //                             .build()
+    //                     )
+    //                     .build()
+    //             )
+    //             .setApnsConfig(
+    //                 ApnsConfig.builder()
+    //                     .setAps(
+    //                         Aps.builder()
+    //                             .setAlert(ApsAlert.builder().setTitle(title).setBody(body).build())
+    //                             .setSound("default")
+    //                             .setContentAvailable(true)
+    //                             .build()
+    //                     )
+    //                     .build()
+    //             )
+    //             .putAllData(finalData)
+    //             .build()
+
+    //         println("📦 Data Payload for token $token: $finalData")
+    //         val response = FirebaseMessaging.getInstance().send(message)
+    //         println("📬 FCM sent to token: $response")
+
+    //     } catch (e: Exception) {
+    //         println("❌ FCM to token failed: ${e.message}")
+    //     }
+    // }
+// }
 
 
 
