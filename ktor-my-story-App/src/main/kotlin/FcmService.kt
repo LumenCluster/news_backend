@@ -52,7 +52,7 @@ class FcmService {
                     ApnsConfig.builder()
                         .setAps(
                             Aps.builder()
-                                .setAlert(ApsAlert.builder().setTitle(title).setBody(body).build())
+                                // .setAlert(ApsAlert.builder().setTitle(title).setBody(body).build())
                                 .setSound("default")
                                 .setContentAvailable(true)
                                 .build()
