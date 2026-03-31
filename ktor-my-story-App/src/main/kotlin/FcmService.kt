@@ -40,12 +40,12 @@ class FcmService {
                 .setAndroidConfig(
                     AndroidConfig.builder()
                         .setPriority(AndroidConfig.Priority.HIGH)
-                        .setNotification(
-                            AndroidNotification.builder()
-                                .setChannelId("my_channel") // Must match Flutter
-                                .setClickAction("FLUTTER_NOTIFICATION_CLICK")
-                                .build()
-                        )
+                        // .setNotification(
+                        //     AndroidNotification.builder()
+                        //         .setChannelId("my_channel") // Must match Flutter
+                        //         .setClickAction("FLUTTER_NOTIFICATION_CLICK")
+                        //         .build()
+                        // )
                         .build()
                 )
                 .setApnsConfig(
@@ -87,12 +87,12 @@ class FcmService {
             .setAndroidConfig(
                 AndroidConfig.builder()
                     .setPriority(AndroidConfig.Priority.HIGH)
-                    .setNotification(
-                        AndroidNotification.builder()
-                            .setChannelId("my_channel")
-                            .setClickAction("FLUTTER_NOTIFICATION_CLICK")
-                            .build()
-                    )
+                    // .setNotification(
+                    //     AndroidNotification.builder()
+                    //         .setChannelId("my_channel")
+                    //         .setClickAction("FLUTTER_NOTIFICATION_CLICK")
+                    //         .build()
+                    // )
                     .build()
             )
             .putAllData(finalData) // Data now only contains metadata like articleId
