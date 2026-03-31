@@ -74,16 +74,19 @@ class FcmService {
     fun sendToToken(token: String, title: String, body: String, data: Map<String, String>? = null) {
     try {
         val finalData = data?.toMutableMap() ?: mutableMapOf()
+                finalData["title"] = title  // ← Move to data
+        finalData["body"] = body    // ← Move to data
+
         finalData["articleId"] = finalData["articleId"] ?: "0"
 
         val message = Message.builder()
             .setToken(token)
-            .setNotification(
-                Notification.builder()
-                    .setTitle(title)
-                    .setBody(body)
-                    .build()
-            )
+            // .setNotification(
+            //     Notification.builder()
+            //         .setTitle(title)
+            //         .setBody(body)
+            //         .build()
+            // )
             .setAndroidConfig(
                 AndroidConfig.builder()
                     .setPriority(AndroidConfig.Priority.HIGH)
